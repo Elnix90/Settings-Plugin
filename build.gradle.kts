@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group = "io.github.elnix90.settings"
-    version = "0.0.2"
+    version = "0.0.3"
 }
 
 subprojects {
