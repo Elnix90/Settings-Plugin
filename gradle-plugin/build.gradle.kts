@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.buildconfig)
     alias(libs.plugins.gradle.plugin)
-    `maven-publish`
+    alias(libs.plugins.vanniktech.maven.publish)
 }
 
 sourceSets {
@@ -40,7 +40,7 @@ gradlePlugin {
             id = rootProject.group.toString()
             displayName = "SettingsPlugin"
             description = "SettingsPlugin"
-            implementationClass = "org.elnix.settings.SettingsGradlePlugin"
+            implementationClass = "io.github.elnix90.settings.SettingsGradlePlugin"
         }
     }
 }

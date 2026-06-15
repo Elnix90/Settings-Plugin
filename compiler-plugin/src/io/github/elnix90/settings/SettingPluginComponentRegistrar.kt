@@ -1,8 +1,8 @@
-package org.elnix.settings
+package io.github.elnix90.settings
 
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
-import org.elnix.settings.ir.SettingsIrGenerationExtension
+import io.github.elnix90.settings.ir.SettingsIrGenerationExtension
 import org.jetbrains.kotlin.config.CompilerConfiguration
 
 class SettingPluginComponentRegistrar : CompilerPluginRegistrar() {

@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.gradle.targets.wasm.d8.D8Plugin
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.buildconfig)
-    `maven-publish`
+    alias(libs.plugins.vanniktech.maven.publish)
 }
 
 project.plugins.apply(D8Plugin::class.java)
@@ -56,21 +56,5 @@ kotlin {
     compilerOptions {
         optIn.add("org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi")
         optIn.add("org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI")
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "org.elnix.settings"
-            artifactId = "compiler-plugin"
-            version = "0.0.1"
-
-            from(components["java"])
-        }
-    }
-
-    repositories {
-        mavenLocal()
     }
 }

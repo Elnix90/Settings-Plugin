@@ -1,4 +1,4 @@
-package org.elnix.settings
+package io.github.elnix90.settings
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)

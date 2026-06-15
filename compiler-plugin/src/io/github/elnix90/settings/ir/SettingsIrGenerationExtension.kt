@@ -1,4 +1,4 @@
-package org.elnix.settings.ir
+package io.github.elnix90.settings.ir
 
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
