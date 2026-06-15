@@ -10,15 +10,10 @@ sourceSets {
         java.setSrcDirs(listOf("src"))
         resources.setSrcDirs(listOf("resources"))
     }
-    test {
-        java.setSrcDirs(listOf("test"))
-        resources.setSrcDirs(listOf("testResources"))
-    }
 }
 
 dependencies {
     implementation(libs.kotlin.gradle.plugin.api)
-    testImplementation(libs.kotlin.test.junit5)
 }
 
 buildConfig {

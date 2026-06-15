@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 @Suppress("unused") // Used via reflection.
 class SettingsGradlePlugin : KotlinCompilerPluginSupportPlugin {
     override fun apply(target: Project) {
-        target.extensions.create("simplePlugin", SettingsGradleExtension::class.java)
+        target.extensions.create("settingsPlugin", SettingsGradleExtension::class.java)
     }
 
     override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean = true

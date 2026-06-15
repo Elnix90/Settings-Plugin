@@ -2,8 +2,7 @@ package org.elnix.settings
 
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
-import org.elnix.settings.ir.SimpleIrGenerationExtension
-import org.jetbrains.kotlin.cli.common.messages.MessageCollector
+import org.elnix.settings.ir.SettingsIrGenerationExtension
 import org.jetbrains.kotlin.config.CompilerConfiguration
 
 class SettingPluginComponentRegistrar : CompilerPluginRegistrar() {
@@ -15,7 +14,7 @@ class SettingPluginComponentRegistrar : CompilerPluginRegistrar() {
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
 
         IrGenerationExtension.registerExtension(
-            SimpleIrGenerationExtension()
+            SettingsIrGenerationExtension()
         )
     }
 }
