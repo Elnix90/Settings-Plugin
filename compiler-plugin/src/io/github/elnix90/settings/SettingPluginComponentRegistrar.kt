@@ -1,9 +1,10 @@
 package io.github.elnix90.settings
 
+import io.github.elnix90.settings.ir.SettingsIrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
-import io.github.elnix90.settings.ir.SettingsIrGenerationExtension
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
 
 class SettingPluginComponentRegistrar : CompilerPluginRegistrar() {
     override val pluginId: String
@@ -12,6 +13,10 @@ class SettingPluginComponentRegistrar : CompilerPluginRegistrar() {
         get() = true
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
+
+        FirExtensionRegistrarAdapter.registerExtension(
+            SettingStoreFirRegistrar()
+        )
 
         IrGenerationExtension.registerExtension(
             SettingsIrGenerationExtension()

@@ -59,7 +59,6 @@ class SettingKeyTransformer(
                     )
 
                 call.arguments[keyParameter.indexInParameters] = keyValue
-
             }
         }
     }

@@ -11,9 +11,6 @@ buildconfig = "5.6.5"
 # https://github.com/vanniktech/gradle-maven-publish-plugin
 vanniktech-maven = "0.36.0"
 
-agp = "9.2.1"
-
-
 [libraries]
 kotlin-compiler = { group = "org.jetbrains.kotlin", name = "kotlin-compiler", version.ref = "kotlin" }
 kotlin-gradle-plugin-api  = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin-api", version.ref = "kotlin" }
@@ -25,6 +22,5 @@ kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref 
 kotlin-binary-compatibility-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "kotlin-binaryCompatibilityValidator"}
 buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig"}
 vanniktech-maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktech-maven"}
-android-library = { id = "com.android.library", version.ref = "agp" }
 gradle-plugin = { id = "java-gradle-plugin" }
 

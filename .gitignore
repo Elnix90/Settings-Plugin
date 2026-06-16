@@ -6,3 +6,6 @@
 build/
 out/
 gradle.properties
+*.asc
+passwd.txt
+build.sh

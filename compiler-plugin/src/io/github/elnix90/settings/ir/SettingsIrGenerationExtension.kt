@@ -11,13 +11,10 @@ class SettingsIrGenerationExtension(
         moduleFragment: IrModuleFragment,
         pluginContext: IrPluginContext
     ) {
-        val transformer = SettingKeyTransformer(
-            context = pluginContext,
-        )
+//        val storeTransformer = SettingStoreTransformer(pluginContext)
+//        moduleFragment.transform(storeTransformer, null)
 
-        moduleFragment.transform(
-            transformer = transformer,
-            data = null
-        )
+        val transformer = SettingKeyTransformer(pluginContext)
+        moduleFragment.transform(transformer, null)
     }
 }
