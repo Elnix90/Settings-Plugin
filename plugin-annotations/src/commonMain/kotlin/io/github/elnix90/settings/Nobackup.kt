@@ -2,4 +2,4 @@ package io.github.elnix90.settings
 
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.BINARY)
-public annotation class NoAll
+public annotation class NoBackup

@@ -28,13 +28,3 @@ val settingStoreFqnName = FqName("io.github.elnix90.settings.SettingStore")
 val settingStoreClassId = ClassId.topLevel(settingStoreFqnName)
 
 
-
-fun IrPluginContext.isSettingStore(
-    declaration: IrClass
-): Boolean =
-    declaration.hasAnnotation(
-        referenceClass(
-            settingStoreClassId
-        ) ?: return false
-    )
-

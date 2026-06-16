@@ -21,6 +21,54 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
+
+/**
+ * FIR declaration generation extension responsible for creating the synthetic
+ * `ALL` property for classes annotated with `@SettingStore`.
+ *
+ * This extension represents the FIR half of the settings store generation
+ * pipeline. Its responsibility is limited to declaring the property and its
+ * type so that the compiler recognizes it as a real member of the store.
+ *
+ * For every class or object annotated with:
+ *
+ * ```
+ * @SettingStore
+ * ```
+ *
+ * the extension generates a declaration equivalent to:
+ *
+ * ```
+ * override val ALL: List<BaseSettingObject<*, *>>
+ * ```
+ *
+ * without requiring the user to write the property manually.
+ *
+ * The generation process happens in two steps:
+ *
+ * 1. [getCallableNamesForClass] advertises that this extension may generate a
+ *    callable named `ALL`. Returning the name unconditionally ensures that FIR
+ *    later invokes [generateProperties], where annotation checks can be
+ *    performed safely.
+ *
+ * 2. [generateProperties] verifies that the current class is annotated with
+ *    `@SettingStore`, resolves the required generic type
+ *    `List<BaseSettingObject<*, *>>`, and generates the synthetic property.
+ *
+ * This extension intentionally does not provide an initializer. FIR is only
+ * responsible for declaring the property and its type. The actual value:
+ *
+ * ```
+ * listOf(settingA, settingB, settingC)
+ * ```
+ *
+ * is generated later during the IR phase by [io.github.elnix90.settings.ir.SettingStoreTransformer], which
+ * has access to the complete list of `@SettingKey` properties declared inside
+ * the store.
+ *
+ * The generated declaration is marked using [Key] so it can be identified as a
+ * compiler-generated member during later compilation stages.
+ */
 class SettingStoreFirExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
 
     /**

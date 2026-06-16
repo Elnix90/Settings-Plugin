@@ -11,6 +11,44 @@ import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
+/**
+ * IR transformer responsible for resolving the final key value of properties
+ * annotated with `@SettingKey`.
+ *
+ * Users can declare settings without manually specifying a key:
+ *
+ * ```
+ * @SettingKey
+ * val hideBetaVersionWarning = boolean(...)
+ * ```
+ *
+ * During IR generation, this transformer locates the initializer call used to
+ * create the setting object and replaces its `key` argument with the name of
+ * the property itself.
+ *
+ * The generated result is equivalent to:
+ *
+ * ```
+ * val hideBetaVersionWarning = boolean(
+ *     key = "hideBetaVersionWarning"
+ * )
+ * ```
+ *
+ * The transformer works by:
+ *
+ * 1. Visiting every property in the module.
+ * 2. Filtering properties annotated with `@SettingKey`.
+ * 3. Inspecting the property's initializer expression.
+ * 4. Finding the underlying factory call, even when wrapped inside IR blocks
+ *    or type-operator expressions.
+ * 5. Locating the parameter named `key`.
+ * 6. Replacing the argument with a string constant containing the property's
+ *    name.
+ *
+ * This removes the need for manually duplicated string keys while ensuring that
+ * setting identifiers remain synchronized with their corresponding property
+ * names during refactoring.
+ */
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 class SettingKeyTransformer(
     private val context: IrPluginContext,
@@ -26,7 +64,6 @@ class SettingKeyTransformer(
 
         return result
     }
-
 
     private fun resolveSettingKeyAnnotation(declaration: IrProperty) {
         if (context.hasSettingKey(declaration)) {
@@ -64,6 +101,10 @@ class SettingKeyTransformer(
     }
 }
 
+/**
+ *  Recursively unwraps common IR
+ *  structures until the actual initializer call is reached.
+ */
 private fun IrExpression.findCall(): IrCall? =
     when (this) {
         is IrCall -> this
