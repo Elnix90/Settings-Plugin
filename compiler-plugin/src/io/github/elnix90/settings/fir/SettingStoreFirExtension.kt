@@ -1,28 +1,20 @@
 package io.github.elnix90.settings.fir
 
 import io.github.elnix90.settings.ir.settingStoreClassId
-import io.github.elnix90.settings.ir.settingStoreFqnName
 import org.jetbrains.kotlin.GeneratedDeclarationKey
 import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.DirectDeclarationsAccess
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
-import org.jetbrains.kotlin.fir.declarations.hasAnnotationWithClassId
-import org.jetbrains.kotlin.fir.declarations.toAnnotationClassId
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
-import org.jetbrains.kotlin.fir.extensions.FirExtension
 import org.jetbrains.kotlin.fir.extensions.MemberGenerationContext
 import org.jetbrains.kotlin.fir.plugin.createMemberProperty
-import org.jetbrains.kotlin.fir.render
 import org.jetbrains.kotlin.fir.resolve.providers.symbolProvider
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
-import org.jetbrains.kotlin.fir.types.ConeClassLikeType
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.ConeStarProjection
-import org.jetbrains.kotlin.fir.types.ConeTypeProjection
-import org.jetbrains.kotlin.fir.types.coneTypeSafe
 import org.jetbrains.kotlin.fir.types.constructClassType
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
@@ -31,12 +23,19 @@ import org.jetbrains.kotlin.name.Name
 
 class SettingStoreFirExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
 
+    /**
+     * Returns true for each class it visits, because I found it easier to check whether the object/class has an annotation during the second phase
+     */
     @OptIn(DirectDeclarationsAccess::class, SymbolInternals::class)
     override fun getCallableNamesForClass(
         classSymbol: FirClassSymbol<*>,
         context: MemberGenerationContext
     ): Set<Name> = setOf(Name.identifier("ALL"))
 
+
+    /**
+     * Checks whether the class it visits has the @SettingStore annotation, and if this is the case, adds a new value ALL to the settings store
+     */
     @OptIn(SymbolInternals::class, DirectDeclarationsAccess::class)
     override fun generateProperties(
         callableId: CallableId,
