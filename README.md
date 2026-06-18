@@ -95,7 +95,7 @@ When the compiler encounters a class or object annotated with:
 the FIR extension generates the declaration:
 
 ```kotlin
-override val ALL: List<BaseSettingObject<*, *>>
+override val ALL: List<SettingObject<*, *>>
 ```
 
 This makes the property part of the class model so the rest of the compiler can see it.

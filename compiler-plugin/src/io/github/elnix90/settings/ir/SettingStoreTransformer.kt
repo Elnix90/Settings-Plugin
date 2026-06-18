@@ -26,7 +26,7 @@ import org.jetbrains.kotlin.name.Name
  * The FIR extension only declares the property:
  *
  * ```
- * override val ALL: List<BaseSettingObject<*, *>>
+ * override val ALL: List<SettingObject<*, *>>
  * ```
  *
  * but does not provide its value. This transformer fills the backing field

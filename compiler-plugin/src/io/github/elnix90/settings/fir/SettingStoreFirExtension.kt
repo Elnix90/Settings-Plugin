@@ -39,7 +39,7 @@ import org.jetbrains.kotlin.name.Name
  * the extension generates a declaration equivalent to:
  *
  * ```
- * override val ALL: List<BaseSettingObject<*, *>>
+ * override val ALL: List<SettingObject<*, *>>
  * ```
  *
  * without requiring the user to write the property manually.
@@ -53,7 +53,7 @@ import org.jetbrains.kotlin.name.Name
  *
  * 2. [generateProperties] verifies that the current class is annotated with
  *    `@SettingStore`, resolves the required generic type
- *    `List<BaseSettingObject<*, *>>`, and generates the synthetic property.
+ *    `List<SettingObject<*, *>>`, and generates the synthetic property.
  *
  * This extension intentionally does not provide an initializer. FIR is only
  * responsible for declaring the property and its type. The actual value:
@@ -96,20 +96,20 @@ class SettingStoreFirExtension(session: FirSession) : FirDeclarationGenerationEx
             return emptyList()
         }
 
-        val baseSettingObjectClassId = ClassId.topLevel(
+        val settingObjectClassId = ClassId.topLevel(
             FqName(
-                "org.elnix.dragonlauncher.settings.bases.objects.BaseSettingObject"
+                "org.elnix.dragonlauncher.settings.bases.objects.SettingObject"
             )
         )
 
-        val baseSettingObjectSymbol =
+        val settingObjectSymbol =
             session.symbolProvider
-                .getClassLikeSymbolByClassId(baseSettingObjectClassId)
-                ?: error("BaseSettingObject not found")
+                .getClassLikeSymbolByClassId(settingObjectClassId)
+                ?: error("SettingObject not found")
 
         @OptIn(SymbolInternals::class)
-        val baseSettingObjectType: ConeKotlinType =
-            baseSettingObjectSymbol.toLookupTag().constructClassType(
+        val settingObjectType: ConeKotlinType =
+            settingObjectSymbol.toLookupTag().constructClassType(
                 arrayOf(
                     ConeStarProjection,
                     ConeStarProjection
@@ -123,7 +123,7 @@ class SettingStoreFirExtension(session: FirSession) : FirDeclarationGenerationEx
                     .let(ClassId::topLevel)
             ) ?: error("List not found")
 
-        val listType = listSymbol.toLookupTag().constructClassType(arrayOf(baseSettingObjectType))
+        val listType = listSymbol.toLookupTag().constructClassType(arrayOf(settingObjectType))
 
         val allProperty = createMemberProperty(
             owner = owner,
