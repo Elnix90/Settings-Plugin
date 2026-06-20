@@ -8,3 +8,4 @@ out/
 gradle.properties
 *.asc
 passwd.txt
+local.properties
