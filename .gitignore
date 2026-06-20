@@ -1,11 +1,9 @@
-.idea/*
-!.idea/externalDependencies.xml
-!.idea/kotlinTestDataPluginTestDataPaths.xml
+.idea/
 .gradle/
 .kotlin/
 build/
 out/
-gradle.properties
+creds/
 *.asc
 passwd.txt
 local.properties
