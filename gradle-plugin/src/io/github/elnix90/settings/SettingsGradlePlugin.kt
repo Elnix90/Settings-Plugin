@@ -1,8 +1,8 @@
 package io.github.elnix90.settings
 
+import io.github.elnix90.settings.BuildConfig.ANNOTATIONS_LIBRARY_COORDINATES
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
-import io.github.elnix90.settings.BuildConfig.ANNOTATIONS_LIBRARY_COORDINATES
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
 import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact

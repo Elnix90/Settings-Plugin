@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.multiplatform) apply false
     alias(libs.plugins.kotlin.binary.compatibility.validator) apply false
     alias(libs.plugins.buildconfig) apply false
@@ -8,7 +9,7 @@ plugins {
 
 allprojects {
     group = "io.github.elnix90.settings"
-    version = "1.0.1"
+    version = "1.1.0"
 }
 
 subprojects {
@@ -45,7 +46,7 @@ subprojects {
 
                 developers {
                     developer {
-                        id.set("elnix")
+                        id.set("github")
                         name.set("Elnix")
                     }
                 }
@@ -60,7 +61,7 @@ subprojects {
                     )
 
                     developerConnection.set(
-                        "scm:git:ssh://git@github.com/elnix/Settings-Plugin.git"
+                        "scm:git:ssh://git@github.com/github/Settings-Plugin.git"
                     )
                 }
             }

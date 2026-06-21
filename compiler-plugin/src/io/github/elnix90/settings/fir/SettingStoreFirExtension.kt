@@ -1,30 +1,35 @@
 package io.github.elnix90.settings.fir
 
-import io.github.elnix90.settings.ir.settingStoreClassId
+import io.github.elnix90.settings.util.ClassIds.settingObjectClassId
+import io.github.elnix90.settings.util.ClassIds.settingsStoreAnnotationClassId
+import io.github.elnix90.settings.util.isMapSettingsStore
+import io.github.elnix90.settings.util.isSettingsStore
 import org.jetbrains.kotlin.GeneratedDeclarationKey
 import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.DirectDeclarationsAccess
+import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
 import org.jetbrains.kotlin.fir.extensions.MemberGenerationContext
 import org.jetbrains.kotlin.fir.plugin.createMemberProperty
 import org.jetbrains.kotlin.fir.resolve.providers.symbolProvider
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
+import org.jetbrains.kotlin.fir.symbols.impl.FirClassLikeSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
+import org.jetbrains.kotlin.fir.types.ConeClassLikeType
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.ConeStarProjection
 import org.jetbrains.kotlin.fir.types.constructClassType
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
 
 /**
  * FIR declaration generation extension responsible for creating the synthetic
- * `ALL` property for classes annotated with `@SettingStore`.
+ * `ALL` property for classes annotated with `@SettingsStore`.
  *
  * This extension represents the FIR half of the settings store generation
  * pipeline. Its responsibility is limited to declaring the property and its
@@ -33,7 +38,7 @@ import org.jetbrains.kotlin.name.Name
  * For every class or object annotated with:
  *
  * ```
- * @SettingStore
+ * @SettingsStore
  * ```
  *
  * the extension generates a declaration equivalent to:
@@ -52,7 +57,7 @@ import org.jetbrains.kotlin.name.Name
  *    performed safely.
  *
  * 2. [generateProperties] verifies that the current class is annotated with
- *    `@SettingStore`, resolves the required generic type
+ *    `@SettingsStore`, resolves the required generic type
  *    `List<SettingObject<*, *>>`, and generates the synthetic property.
  *
  * This extension intentionally does not provide an initializer. FIR is only
@@ -62,14 +67,14 @@ import org.jetbrains.kotlin.name.Name
  * listOf(settingA, settingB, settingC)
  * ```
  *
- * is generated later during the IR phase by [io.github.elnix90.settings.ir.SettingStoreTransformer], which
+ * is generated later during the IR phase by [io.github.elnix90.settings.ir.transformers.SettingsStoreTransformer], which
  * has access to the complete list of `@SettingKey` properties declared inside
  * the store.
  *
  * The generated declaration is marked using [Key] so it can be identified as a
  * compiler-generated member during later compilation stages.
  */
-class SettingStoreFirExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
+internal class SettingsStoreFirExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
 
     /**
      * Returns true for each class it visits, because I found it easier to check whether the object/class has an annotation during the second phase
@@ -82,7 +87,10 @@ class SettingStoreFirExtension(session: FirSession) : FirDeclarationGenerationEx
 
 
     /**
-     * Checks whether the class it visits has the @SettingStore annotation, and if this is the case, adds a new value ALL to the settings store
+     * Checks whether the class it visits has the `@SettingsStore` annotation
+     * If this is the case:
+     *  - adds the overridden value `ALL` to the settings store
+     *  - adds the overridden value `name` to the setting store
      */
     @OptIn(SymbolInternals::class, DirectDeclarationsAccess::class)
     override fun generateProperties(
@@ -92,15 +100,17 @@ class SettingStoreFirExtension(session: FirSession) : FirDeclarationGenerationEx
         if (context == null) return emptyList()
         val owner = context.owner
 
-        if (!owner.hasAnnotation(settingStoreClassId, session)) {
+        if (!owner.hasAnnotation(settingsStoreAnnotationClassId, session)) {
             return emptyList()
         }
 
-        val settingObjectClassId = ClassId.topLevel(
-            FqName(
-                "org.elnix.dragonlauncher.settings.bases.objects.SettingObject"
-            )
-        )
+        if (!(owner.isSettingsStore(session))) {
+            error("Only SettingsStores can be marked as @SettingsStore")
+        }
+
+        if (!owner.isMapSettingsStore(session)) {
+            return emptyList()
+        }
 
         val settingObjectSymbol =
             session.symbolProvider
@@ -117,19 +127,19 @@ class SettingStoreFirExtension(session: FirSession) : FirDeclarationGenerationEx
                 false
             )
 
-        val listSymbol =
+        val setSymbol: FirClassLikeSymbol<*> =
             session.symbolProvider.getClassLikeSymbolByClassId(
-                StandardNames.FqNames.list
+                StandardNames.FqNames.set
                     .let(ClassId::topLevel)
-            ) ?: error("List not found")
+            ) ?: error("Set not found")
 
-        val listType = listSymbol.toLookupTag().constructClassType(arrayOf(settingObjectType))
+        val setType: ConeClassLikeType = setSymbol.toLookupTag().constructClassType(arrayOf(settingObjectType))
 
-        val allProperty = createMemberProperty(
+        val allProperty: FirProperty = createMemberProperty(
             owner = owner,
             key = Key,
             name = Name.identifier("ALL"),
-            returnType = listType,
+            returnType = setType,
             isVal = true,
         )
 

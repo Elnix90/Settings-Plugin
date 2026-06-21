@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
 
-class SettingPluginComponentRegistrar : CompilerPluginRegistrar() {
+internal class SettingPluginComponentRegistrar : CompilerPluginRegistrar() {
     override val pluginId: String
         get() = BuildConfig.KOTLIN_PLUGIN_ID
     override val supportsK2: Boolean
@@ -14,9 +14,11 @@ class SettingPluginComponentRegistrar : CompilerPluginRegistrar() {
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
 
+
         FirExtensionRegistrarAdapter.registerExtension(
-            SettingStoreFirRegistrar()
+            SettingsStoreFirRegistrar()
         )
+
 
         IrGenerationExtension.registerExtension(
             SettingsIrGenerationExtension()

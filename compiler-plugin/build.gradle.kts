@@ -1,9 +1,9 @@
 @file:OptIn(ExperimentalWasmDsl::class)
+@file:Suppress("UnstableApiUsage")
 
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinUsages
-import org.jetbrains.kotlin.gradle.targets.wasm.d8.D8EnvSpec
 import org.jetbrains.kotlin.gradle.targets.wasm.d8.D8Plugin
 
 plugins {
@@ -38,8 +38,8 @@ val annotationsJsRuntimeClasspath by configurations.resolvable("annotationsJsRun
 
 dependencies {
     compileOnly(libs.kotlin.compiler)
-
-    annotationsRuntimeClasspath(project(":plugin-annotations"))
+    implementation(project(":annotations"))
+    annotationsRuntimeClasspath(project(":annotations"))
 }
 
 buildConfig {
@@ -56,5 +56,7 @@ kotlin {
     compilerOptions {
         optIn.add("org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi")
         optIn.add("org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI")
+        freeCompilerArgs.add("-Xcontext-parameters")
     }
+    explicitApi()
 }

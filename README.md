@@ -1,29 +1,64 @@
 # DragonLauncher Settings Compiler Plugin
 
-A Kotlin compiler plugin for Kotlin K2 that removes boilerplate from settings declarations by generating setting keys and settings store collections automatically at compile time.
+A Android Kotlin Compiler Plugin for those who don't want boilerplate when dealing with user settings
 
+This library is built on top of the [Android Datastore library](https://developer.android.com/topic/libraries/architecture/datastore)  it provides easy front-end APIs to access, mutate and save settings.
 ## Overview
 
-The plugin provides two features:
+This plugin works by using what I called **`SettingsStores`**. You define one or more setting stores in you app, and then fille them with all the settings you want.
+
+
+```kotlin
+@SettingsStore
+object MySettingsStore : MapSettingsStore() {
+
+    @SettingKey
+    val settingA = boolean(
+        title = R.string.setting_a_title,
+        description = R.string.setting_a_description,
+        default = true
+    )
+
+    @SettingKey
+    val settingB = string("")
+
+    @SettingKey
+    val settingC = enum(SomeEnum.A)
+    
+    @SettingKey
+    val settingD = int(
+        default = 3,
+        allowedRange = 0..10
+    )
+}
+```
+
+
+You can then get those values in compose using the state functions present in the `runtime` module:
+
+```kotlin
+val settingA: Boolean by MySettingsStore.settingA.asState()
+
+// settingA is state reactive
+AnimatedVisibility(settingA) {
+    SomeComposable()
+}
+```
+
+
+The plugin provides 3 main features:
 
 ### 1. Automatic setting keys
 
-Instead of manually duplicating property names as string keys:
+Each setting has a key parameter that is a String, and that is auto-inferred by the compiler as the value use to describe the setting.
 
-```kotlin
-val hideBetaVersionWarning = boolean(
-    key = "hideBetaVersionWarning"
-)
-```
-
-you can write:
-
+for example you write:
 ```kotlin
 @SettingKey
-val hideBetaVersionWarning = boolean(...)
+val hideBetaVersionWarning = boolean(true)
 ```
 
-and the compiler automatically rewrites the initializer to:
+... and the compiler automatically rewrites the initializer to:
 
 ```kotlin
 boolean(
@@ -31,14 +66,13 @@ boolean(
 )
 ```
 
-This keeps keys synchronized with property names and makes refactoring safe.
+This keeps keys synchronized with property names and makes refactoring safe, but you can always override them and the compiler will use yours
 
 ---
 
 ### 2. Automatic settings store collections
 
 Instead of manually maintaining a list of every setting in a store:
-
 ```kotlin
 override val ALL = listOf(
     settingA,
@@ -47,229 +81,79 @@ override val ALL = listOf(
 )
 ```
 
-you can write:
+The compiler automatically generates this, and provides a safe list of all the settings
 
+---
+
+## 3. Automatic list of all Stores:
+
+You can create a value
 ```kotlin
-@SettingStore
-object MySettingsStore : MapSettingsStore(...) {
+val allStores: Set<SettingsStore<*,*>> = emptySet()
+```
 
-    @SettingKey
-    val settingA = ...
+And the compiler fills it at compile time with all you stores annotated with `@SettingsStore`
 
-    @SettingKey
-    val settingB = ...
 
-    @SettingKey
-    val settingC = ...
+
+
+## Download
+
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.elnix90/settings-plugin.svg?label=Maven%20Central)](https://search.maven.org/artifact/io.github.elnix90/settings-plugin)
+### Version Catalog
+
+Configure the dependency by adding it to your `libs.versions.toml` file as follows:
+
+```toml
+[versions]
+#...
+settings = "1.1.0"
+
+[libraries]
+#...
+settings-annotations = { group = "io.github.elnix90.settings", name = "annotations", version.ref = "settings" }
+settings-core = { group = "io.github.elnix90.settings", name = "core", version.ref = "settings" }
+settings-runtime = { group = "io.github.elnix90.settings", name = "runtime", version.ref = "settings" }
+
+[plugins]
+#...
+settings = { id = "io.github.elnix90.settings", version.ref = "settings" }
+```
+
+### Gradle
+Add the dependency below to your **module**'s `build.gradle.kts` file:
+
+```gradle
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+    // ...
+    alias(libs.plugins.settings) apply false
 }
 ```
 
-and the compiler automatically generates:
-
 ```kotlin
-override val ALL = listOf(
-    settingA,
-    settingB,
-    settingC
-)
-```
 
-No placeholder property, no manual list maintenance, and no risk of forgetting to update the collection when adding or removing settings.
+// Module build file
+plugins {
+    alias(libs.plugins.android.library)
+    // ...
+    alias(libs.plugins.settings) 
+}
 
----
-
-## How It Works
-
-The plugin uses both FIR and IR compiler extensions.
-
-### FIR phase
-
-The `SettingStoreFirExtension` is responsible for declaration generation.
-
-When the compiler encounters a class or object annotated with:
-
-```kotlin
-@SettingStore
-```
-
-the FIR extension generates the declaration:
-
-```kotlin
-override val ALL: List<SettingObject<*, *>>
-```
-
-This makes the property part of the class model so the rest of the compiler can see it.
-
-The FIR phase only creates the declaration. It does not generate the implementation.
-
----
-
-### IR phase
-
-The IR phase contains two transformers.
-
-#### SettingKeyTransformer
-
-Processes properties annotated with:
-
-```kotlin
-@SettingKey
-```
-
-and rewrites the initializer call so that the `key` parameter receives the property's name.
-
-Example:
-
-```kotlin
-@SettingKey
-val showPreview = boolean(...)
-```
-
-becomes:
-
-```kotlin
-val showPreview = boolean(
-    key = "showPreview"
-)
-```
-
----
-
-#### SettingStoreTransformer
-
-Processes classes annotated with:
-
-```kotlin
-@SettingStore
-```
-
-and:
-
-1. Finds the generated `ALL` property.
-2. Collects every property annotated with `@SettingKey`.
-3. Creates a `listOf(...)` call containing all collected settings.
-4. Assigns that call as the initializer of the generated `ALL` property.
-
-Example:
-
-```kotlin
-@SettingStore
-object UiSettingsStore : MapSettingsStore(...) {
-
-    @SettingKey
-    val settingA = ...
-
-    @SettingKey
-    val settingB = ...
+dependencies {
+    // ...
+    implementation(libs.settings.core)
+    implementation(libs.settings.runtime)
+    implementation(libs.settings.annotations)
 }
 ```
 
-becomes effectively:
+
+Then, in each module that has to use the settings as state:
 
 ```kotlin
-object UiSettingsStore : MapSettingsStore(...) {
-
-    val settingA = ...
-    val settingB = ...
-
-    override val ALL = listOf(
-        settingA,
-        settingB
-    )
+dependencies {
+    // ...
+    implementation(libs.settings.runtime)
 }
 ```
-
----
-
-## Project Structure
-
-### `:plugin-annotations`
-
-Contains the annotations used by consumers of the plugin:
-
-- `@SettingKey`
-- `@SettingStore`
-
----
-
-### `:compiler-plugin`
-
-Contains the compiler plugin implementation.
-
-#### FIR
-
-- `SettingStoreFirExtension`
-
-Generates the synthetic `ALL` property declaration.
-
-#### IR
-
-- `SettingKeyTransformer`
-- `SettingStoreTransformer`
-
-Generates the actual implementation code.
-
----
-
-### `:gradle-plugin`
-
-Gradle integration module that applies and configures the compiler plugin in user projects.
-
----
-
-## Generated Code Summary
-
-### `@SettingKey`
-
-Input:
-
-```kotlin
-@SettingKey
-val setting = boolean(...)
-```
-
-Generated:
-
-```kotlin
-val setting = boolean(
-    key = "setting"
-)
-```
-
----
-
-### `@SettingStore`
-
-Input:
-
-```kotlin
-@SettingStore
-object MyStore : MapSettingsStore(...) {
-
-    @SettingKey
-    val first = ...
-
-    @SettingKey
-    val second = ...
-}
-```
-
-Generated:
-
-```kotlin
-object MyStore : MapSettingsStore(...) {
-
-    val first = ...
-    val second = ...
-
-    override val ALL = listOf(
-        first,
-        second
-    )
-}
-```
----
-
-## Tests
-
-There's no tests, idk how  do them.
