@@ -42,7 +42,7 @@ public abstract class SettingObject<TYPED, ENCODED> {
      */
     public abstract val key: String
 
-    public val preferenceKeyName: String = settingsStore prefixes key
+    public val preferenceKeyName: String by lazy { settingsStore prefixes key }
 
     /**
      * The title of this setting.
