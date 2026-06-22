@@ -18,7 +18,7 @@ public data class ColorSettingObject internal constructor(
     override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<Color, String>() {
 
-    override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(key)
+    override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
     override fun encode(value: Color): String = value.toHexWithAlpha(false)
     override fun decode(raw: Any?): Color = getColorStrict(raw, default)
 }

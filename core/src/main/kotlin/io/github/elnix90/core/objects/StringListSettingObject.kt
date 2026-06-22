@@ -17,7 +17,7 @@ public data class StringListSettingObject internal constructor(
     override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<List<String>, String>() {
 
-    override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(key)
+    override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
     override fun encode(value: List<String>): String = value.joinToString(",")
     override fun decode(raw: Any?): List<String> = getStringListStrict(raw, default)
 

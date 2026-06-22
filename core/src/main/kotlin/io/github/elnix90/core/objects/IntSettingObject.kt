@@ -18,7 +18,7 @@ public data class IntSettingObject internal constructor(
     val allowedRange: IntRange
 ) : SettingObject<Int, Int>() {
 
-    override val preferenceKey: Preferences.Key<Int> = intPreferencesKey(key)
+    override val preferenceKey: Preferences.Key<Int> = intPreferencesKey(preferenceKeyName)
     override fun encode(value: Int): Int = value
     override fun decode(raw: Any?): Int = getIntStrict(raw, default).coerceIn(allowedRange)
 }

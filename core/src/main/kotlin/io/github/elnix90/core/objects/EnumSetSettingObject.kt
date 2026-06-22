@@ -18,7 +18,7 @@ public data class EnumSetSettingObject<E : Enum<E>>(
     override val settingsStore: SettingsStore<*, *>,
     val enumClass: Class<E>
 ) : SettingObject<Set<E>, Set<String>>() {
-    override val preferenceKey: Preferences.Key<Set<String>> = stringSetPreferencesKey(key)
+    override val preferenceKey: Preferences.Key<Set<String>> = stringSetPreferencesKey(preferenceKeyName)
     override fun encode(value: Set<E>): Set<String> = value.mapTo(mutableSetOf()) { it.name }
     override fun decode(raw: Any?): Set<E> = getEnumSetStrict(raw, default, enumClass)
 }

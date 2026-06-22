@@ -18,7 +18,7 @@ public data class BooleanSettingObject internal constructor(
     override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<Boolean, Boolean>() {
 
-    override val preferenceKey: Preferences.Key<Boolean> = booleanPreferencesKey(key)
+    override val preferenceKey: Preferences.Key<Boolean> = booleanPreferencesKey(preferenceKeyName)
     override fun encode(value: Boolean): Boolean = value
     override fun decode(raw: Any?): Boolean = getBooleanStrict(raw, default)
 }

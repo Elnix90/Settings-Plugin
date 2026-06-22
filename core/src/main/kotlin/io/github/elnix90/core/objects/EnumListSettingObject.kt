@@ -18,7 +18,7 @@ public data class EnumListSettingObject<E : Enum<E>>(
     override val settingsStore: SettingsStore<*, *>,
     val enumClass: Class<E>
 ) : SettingObject<List<E>, String>() {
-    override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(key)
+    override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
     override fun encode(value: List<E>): String = value.joinToString(",") { it.name }
     override fun decode(raw: Any?): List<E> = getEnumListStrict(raw, default, enumClass)
 }

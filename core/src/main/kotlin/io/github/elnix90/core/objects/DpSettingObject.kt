@@ -20,7 +20,7 @@ public data class DpSettingObject internal constructor(
     val allowedRange: ClosedRange<Dp>
 ) : SettingObject<Dp, Int>() {
 
-    override val preferenceKey: Preferences.Key<Int> = intPreferencesKey(key)
+    override val preferenceKey: Preferences.Key<Int> = intPreferencesKey(preferenceKeyName)
     override fun encode(value: Dp): Int = value.value.toInt()
     override fun decode(raw: Any?): Dp = getDpStrict(raw, default).coerceIn(allowedRange)
 }

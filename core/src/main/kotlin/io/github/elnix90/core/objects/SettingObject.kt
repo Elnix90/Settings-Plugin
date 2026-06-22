@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import io.github.elnix90.core.stores.SettingsStore
 import io.github.elnix90.core.util.dataStore
+import io.github.elnix90.core.util.prefixes
 import io.github.elnix90.logging.BACKUP_TAG
 import io.github.elnix90.logging.SETTINGS_TAG
 import io.github.elnix90.logging.logE
@@ -40,6 +41,8 @@ public abstract class SettingObject<TYPED, ENCODED> {
      * It is auto inferred via the [SettingObject] builders functions during at compile-time via the [Settings compiler plugin](https://github.com/Elnix90/Settings-Plugin)
      */
     public abstract val key: String
+
+    public val preferenceKeyName: String = settingsStore prefixes key
 
     /**
      * The title of this setting.
@@ -85,7 +88,7 @@ public abstract class SettingObject<TYPED, ENCODED> {
     /**
      * Whether if this setting should be added to the backup or not.
      * It is always added when the parameter `forceAllKeys` is `true` during an export
-     * @see io.github.elnix90.core.stores.SettingsStore
+     * @see SettingsStore
      */
     public abstract val backupable: Boolean
 

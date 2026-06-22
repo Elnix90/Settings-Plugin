@@ -18,7 +18,7 @@ public data class FloatSettingObject internal constructor(
     val allowedRange: ClosedFloatingPointRange<Float>
 ) : SettingObject<Float, Float>() {
 
-    override val preferenceKey: Preferences.Key<Float> = floatPreferencesKey(key)
+    override val preferenceKey: Preferences.Key<Float> = floatPreferencesKey(preferenceKeyName)
     override fun encode(value: Float): Float = value
     override fun decode(raw: Any?): Float = getFloatStrict(raw, default).coerceIn(allowedRange)
 }

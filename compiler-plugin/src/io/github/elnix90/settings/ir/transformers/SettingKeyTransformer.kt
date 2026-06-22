@@ -89,13 +89,15 @@ internal class SettingKeyTransformer(
 
             val shouldGenerateKey = currentArgument == null
 
+            val keyValue = declaration.name.asString()
+
             if (shouldGenerateKey) {
                 val keyValue =
                     IrConstImpl.string(
                         startOffset = call.startOffset,
                         endOffset = call.endOffset,
                         type = ctx.irBuiltIns.stringType,
-                        value = declaration.name.asString()
+                        value = keyValue
                     )
 
                 call.arguments[keyParameter.indexInParameters] = keyValue

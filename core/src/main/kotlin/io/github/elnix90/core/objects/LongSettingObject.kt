@@ -18,7 +18,7 @@ public data class LongSettingObject internal constructor(
     val allowedRange: ClosedRange<Long>
 ) : SettingObject<Long, Long>() {
 
-    override val preferenceKey: Preferences.Key<Long> = longPreferencesKey(key)
+    override val preferenceKey: Preferences.Key<Long> = longPreferencesKey(preferenceKeyName)
     override fun encode(value: Long): Long = value
     override fun decode(raw: Any?): Long = getLongStrict(raw, default).coerceIn(allowedRange)
 }

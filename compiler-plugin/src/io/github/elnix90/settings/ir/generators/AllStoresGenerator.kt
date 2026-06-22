@@ -150,7 +150,6 @@ internal class AllStoresGenerator(
             elements = args.toList()
         )
 
-
         // THIS IS NEEDED!! otherwise the resolved type doesn't work and everything's messed up
         call.typeArguments[0] = storeType
         call.arguments[0] = vararg

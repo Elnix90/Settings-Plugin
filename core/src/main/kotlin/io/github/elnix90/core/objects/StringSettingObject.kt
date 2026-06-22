@@ -16,7 +16,7 @@ public data class StringSettingObject internal constructor(
     override val backupable: Boolean, override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<String, String>() {
 
-    override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(key)
+    override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
     override fun encode(value: String): String = value
     override fun decode(raw: Any?): String = getStringStrict(raw, default)
 }
