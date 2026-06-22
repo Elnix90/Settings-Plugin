@@ -1,9 +1,6 @@
 package io.github.elnix90.core.stores
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import io.github.elnix90.core.objects.SettingObject
 import io.github.elnix90.core.util.settingsStoreCase
 import org.json.JSONArray
@@ -46,10 +43,6 @@ public sealed class SettingsStore<T, B>(
      */
     @Suppress("PropertyName")
     public open val ALL: Set<SettingObject<*, *>> = emptySet()
-
-
-    internal val Context.datastore: DataStore<Preferences> by preferencesDataStore(name)
-
 
     /**
      * Lambda use to detect if a setting was changed, and redirect them to the backup manager, in order to trigger a backup.
