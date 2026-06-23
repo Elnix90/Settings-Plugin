@@ -229,19 +229,19 @@ public abstract class SettingObject<TYPED, ENCODED> {
     public suspend fun set(ctx: Context, value: TYPED?) {
         try {
             if (value == null) {
-                logV(SETTINGS_TAG) { "Null setting received, resetting it" }
+                logV(SETTINGS_TAG) { "Value is null for key: $key, resetting it" }
                 reset(ctx)
                 return
             }
 
             if (value == _cachedValue.value) {
-                logV(SETTINGS_TAG) { "Value already equals to the one in settings, no need to change" }
+                logV(SETTINGS_TAG) { "Value ($value) is equals to the one in settings for key: $key, no need to change" }
                 return
             }
 
-            val encoded = encode(value)
+            val encoded: ENCODED? = encode(value)
             if (encoded == null) {
-                logW(SETTINGS_TAG) { "FAILED to encode value, resetting it" }
+                logW(SETTINGS_TAG) { "FAILED to encode value for key: $key, resetting it" }
                 reset(ctx)
                 return
             }
@@ -250,13 +250,12 @@ public abstract class SettingObject<TYPED, ENCODED> {
                 it[preferenceKey] = encoded
             }
 
-            logV(SETTINGS_TAG) { "Setting changed: $key" }
-
             _cachedValue.value = value
             onChanged?.invoke()
 
+            logV(SETTINGS_TAG) { "Setting changed: $key, new value = $value" }
         } catch (e: Exception) {
-            logE(BACKUP_TAG, e) { "FAILED persisting setting: $key" }
+            logE(BACKUP_TAG, e) { "FAILED persisting setting for key: $key, (value = $value)" }
         }
     }
 
@@ -273,6 +272,7 @@ public abstract class SettingObject<TYPED, ENCODED> {
             }
             _cachedValue.value = default
             onChanged?.invoke()
+            logV(SETTINGS_TAG) { "Setting $key, was reset" }
         } catch (e: Exception) {
             logE(BACKUP_TAG, e) { "FAILED resetting setting: $key" }
         }
