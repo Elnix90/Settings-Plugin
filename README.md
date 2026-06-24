@@ -99,9 +99,9 @@ And the compiler fills it at compile time with all you stores annotated with `@S
 
 ## Download
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.elnix90/settings-plugin.svg?label=Maven%20Central)](https://search.maven.org/artifact/io.github.elnix90/settings)
-### Version Catalog
+![Maven Central Version](https://img.shields.io/maven-central/v/io.github.elnix90.settings/compiler-plugin)
 
+### Version Catalog
 Configure the dependency by adding it to your `libs.versions.toml` file as follows:
 
 ```toml
