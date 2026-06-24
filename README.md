@@ -87,12 +87,13 @@ The compiler automatically generates this, and provides a safe list of all the s
 
 ## 3. Automatic list of all Stores:
 
-You can create a value
+You can create a value and **annotate** it with `@AllStores`
 ```kotlin
+@AllStores
 val allStores: Set<SettingsStore<*,*>> = emptySet()
 ```
 
-And the compiler fills it at compile time with all you stores annotated with `@SettingsStore`
+And the compiler fills it at with all you stores annotated with `@SettingsStore`
 
 
 
