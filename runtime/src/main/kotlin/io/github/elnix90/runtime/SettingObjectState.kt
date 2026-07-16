@@ -74,7 +74,15 @@ public fun <T, R> SettingObject<T, R>.asStateNull(): State<T?> {
     return flow(ctx).collectAsStateWithLifecycle(initialValue = null)
 }
 
-
+/**
+ * Collects the current value of this setting as a Compose [MutableState] that allows null values.
+ *
+ * Unlike [asStateNull], this version always starts with `null` and can represent an unset state explicitly.
+ * The returned [MutableState] allows direct assignment to update the setting asynchronously, including setting it to `null`.
+ * Useful when `null` has semantic meaning in your UI or when the setting can be unset.
+ *
+ * @return A [MutableState] holding the current value of the setting, or null if not yet set.
+ */
 @Composable
 public fun <T, R> SettingObject<T, R>.asMutableStateNull(): MutableState<T?> {
     val ctx = LocalContext.current
