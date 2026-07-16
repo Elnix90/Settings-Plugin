@@ -9,12 +9,12 @@ targetSdk = "37"
 agp = "9.2.1"
 androidx-core = "1.19.0"
 datastore = "1.2.1"
-uiGraphics = "1.11.3"
+uiGraphics = "1.11.4"
 datastorePreferencesCore = "1.2.1"
 timber = "5.0.1"
 kotlinx-serialization = "1.11.0"
 kotlinxCoroutinesCore = "1.11.0"
-composeBom = "2026.06.00"
+composeBom = "2026.06.01"
 
 
 
@@ -28,9 +28,9 @@ kotlin-binaryCompatibilityValidator = "0.16.3"
 buildconfig = "5.6.5"
 
 # https://github.com/vanniktech/gradle-maven-publish-plugin
-vanniktech-maven = "0.36.0"
+vanniktech-maven = "0.37.0"
 
-logging = "1.0.1"
+logging = "1.0.2"
 
 [libraries]
 kotlin-compiler = { group = "org.jetbrains.kotlin", name = "kotlin-compiler", version.ref = "kotlin" }
