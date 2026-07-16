@@ -11,11 +11,13 @@ import io.github.elnix90.logging.SETTINGS_TAG
 import io.github.elnix90.logging.logE
 import io.github.elnix90.logging.logV
 import io.github.elnix90.logging.logW
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.withContext
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
@@ -34,7 +36,7 @@ public abstract class SettingObject<TYPED, ENCODED> {
     /**
      * The [SettingsStore] in which this [SettingObject] is in
      */
-    public abstract val settingsStore: SettingsStore<*,*>
+    public abstract val settingsStore: SettingsStore<*, *>
 
     /**
      * Unique identifier for this setting.
@@ -115,10 +117,12 @@ public abstract class SettingObject<TYPED, ENCODED> {
      * @return [TYPED] value decoded from the Datastore
      */
     private suspend fun loadValue(ctx: Context): TYPED {
-        val raw: ENCODED? = ctx
-            .dataStore
-            .data
-            .first()[preferenceKey]
+        val raw: ENCODED? = withContext(Dispatchers.IO) {
+            ctx
+                .dataStore
+                .data
+                .first()[preferenceKey]
+        }
 
         val decoded: TYPED = raw?.let {
             try {
@@ -229,7 +233,7 @@ public abstract class SettingObject<TYPED, ENCODED> {
     public suspend fun set(ctx: Context, value: TYPED?) {
         try {
             if (value == null) {
-                logV(SETTINGS_TAG) { "Value is null for key: $key, resetting it" }
+//                logV(SETTINGS_TAG) { "Value is null for key: $key, resetting it" }
                 reset(ctx)
                 return
             }
@@ -246,14 +250,17 @@ public abstract class SettingObject<TYPED, ENCODED> {
                 return
             }
 
-            ctx.dataStore.edit {
-                it[preferenceKey] = encoded
+            _cachedValue.value = value
+
+            withContext(Dispatchers.IO) {
+                ctx.dataStore.edit {
+                    it[preferenceKey] = encoded
+                }
             }
 
-            _cachedValue.value = value
             onChanged?.invoke()
 
-            logV(SETTINGS_TAG) { "Setting changed: $key, new value = $value" }
+//            logV(SETTINGS_TAG) { "Setting changed: $key, new value = $value" }
         } catch (e: Exception) {
             logE(BACKUP_TAG, e) { "FAILED persisting setting for key: $key, (value = $value)" }
         }
@@ -267,12 +274,14 @@ public abstract class SettingObject<TYPED, ENCODED> {
      */
     public suspend fun reset(ctx: Context) {
         try {
-            ctx.dataStore.edit {
-                it.remove(preferenceKey)
+            withContext(Dispatchers.IO) {
+                ctx.dataStore.edit {
+                    it.remove(preferenceKey)
+                }
             }
             _cachedValue.value = default
             onChanged?.invoke()
-            logV(SETTINGS_TAG) { "Setting $key, was reset" }
+//            logV(SETTINGS_TAG) { "Setting $key, was reset" }
         } catch (e: Exception) {
             logE(BACKUP_TAG, e) { "FAILED resetting setting: $key" }
         }
