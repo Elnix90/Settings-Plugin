@@ -37,12 +37,30 @@ object MySettingsStore : MapSettingsStore() {
 You can then get those values in compose using the state functions present in the `runtime` module:
 
 ```kotlin
-val settingA: Boolean by MySettingsStore.settingA.asState()
+val settingA by MySettingsStore.settingA.asState()
+
+
+var settingB by MySettingsStore.settingB.asMutableState()
 
 // settingA is state reactive
 AnimatedVisibility(settingA) {
     SomeComposable()
 }
+
+// SettingB is a mutable state
+if (someCondition) {
+    settingB = false
+}
+
+
+// You can also mutate them by using a Coroutine scope and context
+val ctx = LocalContext.current
+val scope = rememberCoroutineScope()
+
+scope.launch {
+    MySettingsStore.settingA.set(ctx, false)
+}
+
 ```
 
 
