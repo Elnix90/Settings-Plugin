@@ -176,3 +176,31 @@ dependencies {
     implementation(libs.settings.runtime)
 }
 ```
+
+## How to clone and add credentials
+
+1. Generate the key
+```bash
+gpg --full-generate-key
+```
+
+- Select **RSA** and then 4096
+- fill in the next prompts with what you need
+
+2. Export the key to the `creds/` folder
+```bash
+gpg --armor --export-secret-key YOUR_KEY_ID > creds/private.asc
+```
+This will create or overwrite the file `creds/private.asc` in the repo (gitignored)
+
+3. Export password to `creds/private.txt`
+```bash
+echo YOUR_PASSWORD > creds/passwd.txt
+```
+
+4. Generate Maven tokens
+- Go to https://central.sonatype.com/usertoken and create a new token.
+- Paste the username given to `creds/maven_username.txt`
+- Paste the password given to `creds/maven_password.txt`
+
+5. you can now publish to maven by using `./gradlew publish`
