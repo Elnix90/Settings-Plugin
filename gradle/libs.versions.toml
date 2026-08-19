@@ -30,7 +30,7 @@ buildconfig = "6.0.10"
 # https://github.com/vanniktech/gradle-maven-publish-plugin
 vanniktech-maven = "0.37.0"
 
-logging = "1.0.2"
+logging = "1.0.3"
 
 [libraries]
 kotlin-compiler = { group = "org.jetbrains.kotlin", name = "kotlin-compiler", version.ref = "kotlin" }

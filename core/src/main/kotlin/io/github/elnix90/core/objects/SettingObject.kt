@@ -4,12 +4,11 @@ import android.content.Context
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import io.github.elnix90.core.stores.SettingsStore
+import io.github.elnix90.core.util.BACKUP_TAG
+import io.github.elnix90.core.util.SETTINGS_TAG
 import io.github.elnix90.core.util.dataStore
 import io.github.elnix90.core.util.prefixes
-import io.github.elnix90.logging.BACKUP_TAG
-import io.github.elnix90.logging.SETTINGS_TAG
 import io.github.elnix90.logging.logE
-import io.github.elnix90.logging.logV
 import io.github.elnix90.logging.logW
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -72,7 +71,7 @@ public abstract class SettingObject<TYPED, ENCODED> {
     protected abstract val preferenceKey: Preferences.Key<ENCODED>
 
     /**
-     * Converts [TYPED] → [R?] for DataStore persistence (returns `null` to remove setting).
+     * Converts [TYPED] → [ENCODED]`?` for DataStore persistence (returns `null` to remove setting).
      */
     public abstract fun encode(value: TYPED): ENCODED?
 
@@ -233,15 +232,11 @@ public abstract class SettingObject<TYPED, ENCODED> {
     public suspend fun set(ctx: Context, value: TYPED?) {
         try {
             if (value == null) {
-//                logV(SETTINGS_TAG) { "Value is null for key: $key, resetting it" }
                 reset(ctx)
                 return
             }
 
-            if (value == _cachedValue.value) {
-                logV(SETTINGS_TAG) { "Value ($value) is equals to the one in settings for key: $key, no need to change" }
-                return
-            }
+            if (value == _cachedValue.value) return
 
             val encoded: ENCODED? = encode(value)
             if (encoded == null) {
@@ -251,7 +246,6 @@ public abstract class SettingObject<TYPED, ENCODED> {
             }
 
             _cachedValue.value = value
-
             withContext(Dispatchers.IO) {
                 ctx.dataStore.edit {
                     it[preferenceKey] = encoded
@@ -259,10 +253,8 @@ public abstract class SettingObject<TYPED, ENCODED> {
             }
 
             onChanged?.invoke()
-
-//            logV(SETTINGS_TAG) { "Setting changed: $key, new value = $value" }
         } catch (e: Exception) {
-            logE(BACKUP_TAG, e) { "FAILED persisting setting for key: $key, (value = $value)" }
+            logE(BACKUP_TAG, e) { "FAILED persisting setting for key: $key\nasked value: $value" }
         }
     }
 
@@ -274,14 +266,14 @@ public abstract class SettingObject<TYPED, ENCODED> {
      */
     public suspend fun reset(ctx: Context) {
         try {
+            _cachedValue.value = default
             withContext(Dispatchers.IO) {
                 ctx.dataStore.edit {
                     it.remove(preferenceKey)
                 }
             }
-            _cachedValue.value = default
+
             onChanged?.invoke()
-//            logV(SETTINGS_TAG) { "Setting $key, was reset" }
         } catch (e: Exception) {
             logE(BACKUP_TAG, e) { "FAILED resetting setting: $key" }
         }

@@ -3,8 +3,8 @@ package io.github.elnix90.core.stores
 import android.content.Context
 import io.github.elnix90.core.objects.SettingObject
 import io.github.elnix90.core.objects.StringSettingObject
+import io.github.elnix90.core.util.BACKUP_TAG
 import io.github.elnix90.core.util.isNotNullOrDefault
-import io.github.elnix90.logging.BACKUP_TAG
 import io.github.elnix90.logging.logE
 import org.json.JSONException
 import org.json.JSONObject

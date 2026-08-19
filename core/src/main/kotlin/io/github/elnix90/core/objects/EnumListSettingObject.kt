@@ -4,8 +4,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.elnix90.core.stores.MapSettingsStore
 import io.github.elnix90.core.stores.SettingsStore
+import io.github.elnix90.core.util.SETTINGS_TAG
 import io.github.elnix90.core.util.isNotBlankKey
-import io.github.elnix90.logging.ANGLE_LINE_TAG
 import io.github.elnix90.logging.logE
 
 public data class EnumListSettingObject<E : Enum<E>>(
@@ -76,7 +76,7 @@ internal fun <E : Enum<E>> getEnumListStrict(
                         ?.firstOrNull { it.name == elem.trim() }
                 }.orEmpty()
         } catch (e: Exception) {
-            logE(ANGLE_LINE_TAG, e) { "Failed to decode enumClass $enumClass object, using default value" }
+            logE(SETTINGS_TAG, e) { "Failed to decode enumClass $enumClass object, using default value" }
             null
         }
 

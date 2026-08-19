@@ -19,8 +19,8 @@ import org.json.JSONObject
  * Implementation
  *  - Each instance of [SettingsStore] has to be **annotated** by [io.github.elnix90.annotations.SettingsStore] from the [Settings compiler plugin](https://github.com/Elnix90/Settings-Plugin)
  *
- * @param T The aggregate type representing the values of the entire store.
- * @param B The aggregate type representing the backup type,I use 2 backup types: [JSONObject], [JSONArray], which is used across the app to store conveniently data
+ * @param TYPE The aggregate type representing the values of the entire store.
+ * @param BACKUP The aggregate type representing the backup type,I use 2 backup types: [JSONObject], [JSONArray], which is used across the app to store conveniently data
  *
  * ### Responsibilities
  * - Defines a list of all contained settings via [ALL], auto inferred by the [Settings compiler plugin](https://github.com/Elnix90/Settings-Plugin)
@@ -29,7 +29,7 @@ import org.json.JSONObject
  * - Supports backup and restore via ([exportForBackup], [importFromBackup]).
  *
  */
-public sealed class SettingsStore<T, B>(
+public sealed class SettingsStore<TYPE, BACKUP>(
     public open val backupable: Boolean
 ) {
     public val name: String = this::class.simpleName!!.settingsStoreCase()
@@ -70,13 +70,13 @@ public sealed class SettingsStore<T, B>(
     }
 
     /**
-     * Reads the current state of all settings in this store and returns it in the form of the store's backup type [T]
+     * Reads the current state of all settings in this store and returns it in the form of the store's backup type [TYPE]
      *
      * @param ctx The Android [Context] required to access the underlying DataStore.
      * @param forceAllKeys whether to get the settings that haven't been changed in the backup, the defaults
-     * @return The aggregate state of type [T].
+     * @return The aggregate state of type [TYPE].
      */
-    public abstract suspend fun getAll(ctx: Context, forceAllKeys: Boolean): T
+    public abstract suspend fun getAll(ctx: Context, forceAllKeys: Boolean): TYPE
 
     /**
      * Writes the given aggregate state to all settings in this store.
@@ -84,21 +84,21 @@ public sealed class SettingsStore<T, B>(
      * @param ctx The Android [Context] required to access the underlying DataStore.
      * @param value The new state to write to all settings.
      */
-    public abstract suspend fun setAll(ctx: Context, value: T)
+    public abstract suspend fun setAll(ctx: Context, value: TYPE)
 
     /**
-     * Exports the current state of all settings as a [B] type object for backup purposes.
+     * Exports the current state of all settings as a [BACKUP] type object for backup purposes.
      *
      * @param ctx The Android [Context] required to access the underlying DataStore.
-     * @return A [B] representing all settings in the store's type, or `null` if nothing to export.
+     * @return A [BACKUP] representing all settings in the store's type, or `null` if nothing to export.
      */
-    public abstract suspend fun exportForBackup(ctx: Context, forceAllKeys: Boolean): B?
+    public abstract suspend fun exportForBackup(ctx: Context, forceAllKeys: Boolean): BACKUP?
 
     /**
-     * Imports settings from a [B] type backup.
+     * Imports settings from a [BACKUP] type backup.
      *
      * @param ctx The Android [Context] required to access the underlying DataStore.
-     * @param json The [B] containing backup values.
+     * @param json The [BACKUP] containing backup values.
      */
-    public abstract suspend fun importFromBackup(ctx: Context, json: B?)
+    public abstract suspend fun importFromBackup(ctx: Context, json: BACKUP?)
 }
