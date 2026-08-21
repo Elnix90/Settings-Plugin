@@ -165,7 +165,7 @@ public abstract class SettingObject<TYPED, ENCODED> {
 
     /**
      * Get the value one shot for logic, no flow
-     * Returns null if the value is not defined ([default])
+     * Returns null if the value is not defined or uses the [default] value
      *
      * @return [TYPED]? decoded nullable value
      */
