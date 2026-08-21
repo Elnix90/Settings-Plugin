@@ -1,6 +1,6 @@
 package io.github.elnix90.core.util
 
-import java.util.Locale.getDefault
+import java.util.Locale
 
 private val camelRegex = "(?<=[a-zA-Z])[A-Z]".toRegex()
 
@@ -11,5 +11,5 @@ internal fun String.settingsStoreCase(): String {
     val withoutSettingsStoreText = settingsStoreRegex.replace(this) { "" }
     return  camelRegex.replace(withoutSettingsStoreText) {
         "_${it.value}"
-    }.lowercase(getDefault())
+    }.lowercase(Locale.ROOT)
 }
