@@ -92,17 +92,16 @@ internal class AllStoresGenerator(
             .files
             .flatMap { it.declarations }
             .filterIsInstance<IrProperty>()
+            .filter {
+                it.hasAnnotation(allStoresAnnotationClassId)
+            }
 
+        if (allStoresFields.isEmpty()) return
         if (allStoresFields.size > 1) {
             throw IllegalStateException("There must be at most 1 @AllStores value")
         }
 
-        val allStoresField: IrField = allStoresFields
-            .firstOrNull {
-                it.hasAnnotation(allStoresAnnotationClassId)
-            }
-            ?.backingField
-            ?: return
+        val allStoresField: IrField = allStoresFields.first().backingField ?: return
 
         val args: Set<IrExpression> = stores.mapTo(mutableSetOf()) { store ->
             IrGetObjectValueImpl(
