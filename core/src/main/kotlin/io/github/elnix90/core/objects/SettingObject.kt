@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
@@ -104,6 +106,9 @@ public abstract class SettingObject<TYPED, ENCODED> {
         MutableStateFlow(default)
     }
 
+
+    private val mutex = Mutex()
+
     /**
      * Internal value to track whether the value has been loaded from the datastore or not.
      */
@@ -116,26 +121,28 @@ public abstract class SettingObject<TYPED, ENCODED> {
      * @return [TYPED] value decoded from the Datastore
      */
     private suspend fun loadValue(ctx: Context): TYPED {
-        val raw: ENCODED? = withContext(Dispatchers.IO) {
-            ctx
-                .dataStore
-                .data
-                .first()[preferenceKey]
-        }
-
-        val decoded: TYPED = raw?.let {
-            try {
-                decode(it)
-            } catch (e: Exception) {
-                logE(BACKUP_TAG, e) { "FAILED decoding setting: $key" }
-                null
+        mutex.withLock {
+            val raw: ENCODED? = withContext(Dispatchers.IO) {
+                ctx
+                    .dataStore
+                    .data
+                    .first()[preferenceKey]
             }
-        } ?: default
 
-        _cachedValue.value = decoded
+            val decoded: TYPED = raw?.let {
+                try {
+                    decode(it)
+                } catch (e: Exception) {
+                    logE(BACKUP_TAG, e) { "FAILED decoding setting: $key" }
+                    null
+                }
+            } ?: default
 
-        isInitialized.store(true)
-        return _cachedValue.value
+            _cachedValue.value = decoded
+
+            isInitialized.store(true)
+            return _cachedValue.value
+        }
     }
 
     /**
@@ -181,14 +188,10 @@ public abstract class SettingObject<TYPED, ENCODED> {
      * @return decoded value of settings type [TYPED]
      */
     public suspend fun get(ctx: Context): TYPED {
-        return if (isInitialized.compareAndSet(expectedValue = false, newValue = true)) {
-            val loaded = loadValue(ctx)
-            assert(loaded != null)
-            loaded
+        return if (!isInitialized.load()) {
+            loadValue(ctx)
         } else {
-            val loaded = _cachedValue.value
-            assert(loaded != null)
-            loaded
+            _cachedValue.value
         }
     }
 
@@ -218,7 +221,7 @@ public abstract class SettingObject<TYPED, ENCODED> {
         _cachedValue
             .asStateFlow()
             .onStart {
-                if (isInitialized.compareAndSet(expectedValue = false, newValue = true)) {
+                if (!isInitialized.load()) {
                     loadValue(ctx)
                 }
             }
