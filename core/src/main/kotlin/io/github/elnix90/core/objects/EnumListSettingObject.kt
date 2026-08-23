@@ -1,5 +1,6 @@
 package io.github.elnix90.core.objects
 
+import androidx.compose.runtime.Stable
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.elnix90.core.stores.MapSettingsStore
@@ -8,6 +9,7 @@ import io.github.elnix90.core.util.SETTINGS_TAG
 import io.github.elnix90.core.util.isNotBlankKey
 import io.github.elnix90.logging.logE
 
+@Stable
 public data class EnumListSettingObject<E : Enum<E>>(
     override val key: String,
     override val default: List<E>,

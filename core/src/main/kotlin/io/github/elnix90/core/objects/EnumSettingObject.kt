@@ -1,11 +1,13 @@
 package io.github.elnix90.core.objects
 
+import androidx.compose.runtime.Stable
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.elnix90.core.stores.MapSettingsStore
 import io.github.elnix90.core.stores.SettingsStore
 import io.github.elnix90.core.util.isNotBlankKey
 
+@Stable
 public data class EnumSettingObject<E : Enum<E>>(
     override val key: String,
     override val default: E,

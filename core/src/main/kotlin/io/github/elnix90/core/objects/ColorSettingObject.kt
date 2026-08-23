@@ -1,5 +1,6 @@
 package io.github.elnix90.core.objects
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -7,6 +8,7 @@ import io.github.elnix90.core.stores.MapSettingsStore
 import io.github.elnix90.core.stores.SettingsStore
 import io.github.elnix90.core.util.toHexWithAlpha
 
+@Stable
 @ConsistentCopyVisibility
 public data class ColorSettingObject internal constructor(
     override val key: String,
