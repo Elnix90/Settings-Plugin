@@ -12,6 +12,7 @@ public data class StringListSettingObject internal constructor(
     override val default: List<String>,
     override val title: Int?,
     override val description: Int?,
+    override val icon: Int?,
     override var onChanged: (() -> Unit)?,
     override val backupable: Boolean,
     override val settingsStore: SettingsStore<*, *>
@@ -43,6 +44,7 @@ public fun MapSettingsStore.stringList(
     default: List<String>,
     title: Int? = null,
     description: Int? = null,
+    icon: Int? = null,
     key: String = "",
     onChanged: (() -> Unit)? = null,
     backupable: Boolean = true
@@ -50,6 +52,7 @@ public fun MapSettingsStore.stringList(
     key = key.isNotBlankKey,
     title = title,
     description = description,
+    icon = icon,
     default = default,
     onChanged = onChanged,
     backupable = backupable,

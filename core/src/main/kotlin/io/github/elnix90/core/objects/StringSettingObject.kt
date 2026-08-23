@@ -12,6 +12,7 @@ public data class StringSettingObject internal constructor(
     override val default: String,
     override val title: Int?,
     override val description: Int?,
+    override val icon: Int?,
     override var onChanged: (() -> Unit)?,
     override val backupable: Boolean, override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<String, String>() {
@@ -41,6 +42,7 @@ public fun MapSettingsStore.string(
     default: String,
     title: Int? = null,
     description: Int? = null,
+    icon: Int? = null,
     key: String = "",
     onChanged: (() -> Unit)? = null,
     backupable: Boolean = true
@@ -48,6 +50,7 @@ public fun MapSettingsStore.string(
     key = key.isNotBlankKey,
     title = title,
     description = description,
+    icon = icon,
     default = default,
     onChanged = onChanged,
     backupable = backupable,

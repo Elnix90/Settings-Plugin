@@ -39,6 +39,7 @@ public abstract class JsonObjectSettingsStore(
         default = "",
         title = null,
         description = null,
+        icon = null,
         onChanged = null,
         backupable = true,
         settingsStore = this

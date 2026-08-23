@@ -12,6 +12,7 @@ public data class BooleanSettingObject internal constructor(
     override val key: String,
     override val default: Boolean,
     override val title: Int?,
+    override val icon: Int?,
     override val description: Int?,
     override var onChanged: (() -> Unit)?,
     override val backupable: Boolean,
@@ -43,6 +44,7 @@ public fun MapSettingsStore.boolean(
     default: Boolean,
     title: Int? = null,
     description: Int? = null,
+    icon: Int? = null,
     key: String = "",
     onChanged: (() -> Unit)? = null,
     backupable: Boolean = true
@@ -50,6 +52,7 @@ public fun MapSettingsStore.boolean(
     key = key.isNotBlankKey,
     title = title,
     description = description,
+    icon = icon,
     default = default,
     onChanged = onChanged,
     backupable = backupable,

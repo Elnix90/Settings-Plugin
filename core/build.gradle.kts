@@ -34,6 +34,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.datastore.core)
     implementation(libs.timber)
+    implementation(libs.androidx.compose.runtime)
     implementation(libs.kotlinx.serialization.json)
 
     api(libs.androidx.datastore.preferences.core)

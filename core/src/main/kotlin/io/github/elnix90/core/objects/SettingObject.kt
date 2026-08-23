@@ -1,6 +1,7 @@
 package io.github.elnix90.core.objects
 
 import android.content.Context
+import androidx.compose.runtime.Stable
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import io.github.elnix90.core.stores.SettingsStore
@@ -31,6 +32,7 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
  * @param TYPED The strongly-typed value type of this setting (e.g., `Boolean`, `String`, custom data class).
  * @param ENCODED The raw [Preferences.Key] value type stored in DataStore (e.g., `Boolean`, `String`).
  */
+@Stable
 @OptIn(ExperimentalAtomicApi::class)
 public abstract class SettingObject<TYPED, ENCODED> {
 
@@ -59,6 +61,14 @@ public abstract class SettingObject<TYPED, ENCODED> {
      * Same as [title] but it's the description
      */
     public abstract val description: Int?
+
+    /**
+     * The icon of this setting.
+     * It's the ressource ID that links to an i18n ressource value.
+     * Used in Compose to automatically infer title via the property instead of manually specifying them for all settings
+     * Can be null for specific settings, that aren't meant to be directly toggled or changed in Compose
+     */
+    public abstract val icon: Int?
 
     /**
      * Fallback value when no persisted value exists.

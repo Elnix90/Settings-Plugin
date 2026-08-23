@@ -12,6 +12,7 @@ public data class StringSetSettingObject internal constructor(
     override val default: Set<String>,
     override val title: Int?,
     override val description: Int?,
+    override val icon: Int?,
     override var onChanged: (() -> Unit)?,
     override val backupable: Boolean,
     override val settingsStore: SettingsStore<*, *>
@@ -42,6 +43,7 @@ public fun MapSettingsStore.stringSet(
     default: Set<String>,
     title: Int? = null,
     description: Int? = null,
+    icon: Int? = null,
     key: String = "",
     onChanged: (() -> Unit)? = null,
     backupable: Boolean = true
@@ -49,6 +51,7 @@ public fun MapSettingsStore.stringSet(
     key = key.isNotBlankKey,
     title = title,
     description = description,
+    icon = icon,
     default = default,
     onChanged = onChanged,
     backupable = backupable,

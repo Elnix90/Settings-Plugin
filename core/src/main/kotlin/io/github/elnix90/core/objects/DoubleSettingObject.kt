@@ -12,6 +12,7 @@ public data class DoubleSettingObject internal constructor(
     override val default: Double,
     override val title: Int?,
     override val description: Int?,
+    override val icon: Int?,
     override var onChanged: (() -> Unit)?,
     override val backupable: Boolean,
     override val settingsStore: SettingsStore<*, *>,
@@ -45,6 +46,7 @@ public fun MapSettingsStore.double(
     allowedRange: ClosedRange<Double>,
     title: Int? = null,
     description: Int? = null,
+    icon: Int? = null,
     key: String = "",
     onChanged: (() -> Unit)? = null,
     backupable: Boolean = true
@@ -52,6 +54,7 @@ public fun MapSettingsStore.double(
     key = key.isNotBlankKey,
     title = title,
     description = description,
+    icon = icon,
     default = default,
     allowedRange = allowedRange,
     onChanged = onChanged,

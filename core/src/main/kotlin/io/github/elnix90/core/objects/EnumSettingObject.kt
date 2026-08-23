@@ -11,6 +11,7 @@ public data class EnumSettingObject<E : Enum<E>>(
     override val default: E,
     override val title: Int?,
     override val description: Int?,
+    override val icon: Int?,
     override var onChanged: (() -> Unit)?,
     override val backupable: Boolean,
     override val settingsStore: SettingsStore<*, *>,
@@ -43,6 +44,7 @@ public inline fun <reified E : Enum<E>> MapSettingsStore.enum(
     default: E,
     title: Int? = null,
     description: Int? = null,
+    icon: Int? = null,
     key: String = "",
     noinline onChanged: (() -> Unit)? = null,
     backupable: Boolean = true
@@ -50,6 +52,7 @@ public inline fun <reified E : Enum<E>> MapSettingsStore.enum(
     key = key.isNotBlankKey,
     title = title,
     description = description,
+    icon = icon,
     default = default,
     enumClass = E::class.java,
     onChanged = onChanged,
