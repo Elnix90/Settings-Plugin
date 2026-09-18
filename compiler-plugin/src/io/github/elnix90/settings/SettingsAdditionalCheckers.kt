@@ -8,10 +8,8 @@ import org.jetbrains.kotlin.fir.analysis.extensions.FirAdditionalCheckersExtensi
 internal class SettingsAdditionalCheckers(
     session: FirSession
 ) : FirAdditionalCheckersExtension(session) {
-
     override val declarationCheckers =
         object : DeclarationCheckers() {
-
             override val propertyCheckers =
                 setOf(SettingKeyChecker())
         }

@@ -21,7 +21,6 @@ sourceSets {
     }
 }
 
-
 val annotationsRuntimeClasspath by configurations.dependencyScope("annotationsRuntimeClasspath") {
     isTransitive = false
 }
@@ -50,7 +49,6 @@ buildConfig {
     packageName(group.toString())
     buildConfigField("String", "KOTLIN_PLUGIN_ID", "\"${rootProject.group}\"")
 }
-
 
 kotlin {
     compilerOptions {

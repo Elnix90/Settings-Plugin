@@ -1,0 +1,26 @@
+[tools]
+pre-commit = "latest"
+ktlint = "latest"
+
+[env]
+ANDROID_HOME = "~/.android/sdk"
+
+[tasks.build]
+run = "scripts/publish_maven_local.sh"
+description = "Publish to maven local"
+
+[tasks.format]
+run = "ktlint --format"
+description = "Run Android Lint"
+
+[tasks.clean]
+run = "./gradlew clean"
+description = "Clean build artifacts"
+
+[tasks.full-clean]
+run = "./gradlew clean && rm -rf .gradle"
+description = "Clean everything"
+
+[tasks.setup-hooks]
+run = "pre-commit install && pre-commit install --hook-type commit-msg && mise use pre-commit"
+description = "Install git hooks (pre-commit + commit-msg)"

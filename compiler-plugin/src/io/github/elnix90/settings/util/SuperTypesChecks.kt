@@ -11,15 +11,13 @@ import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.name.ClassId
 
-
 internal fun FirClassSymbol<*>.isSettingsStore(
     session: FirSession
 ): Boolean {
-
     val mapSettingsStoreSymbol =
         session.symbolProvider
             .getClassLikeSymbolByClassId(settingsStoreClassId)
-                as? FirClassSymbol<*>
+            as? FirClassSymbol<*>
             ?: return false
 
     return mapSettingsStoreSymbol.isSupertypeOf(this, session)
@@ -28,19 +26,16 @@ internal fun FirClassSymbol<*>.isSettingsStore(
 internal fun FirClassSymbol<*>.isMapSettingsStore(
     session: FirSession
 ): Boolean {
-
     val mapSettingsStoreSymbol =
         session.symbolProvider
             .getClassLikeSymbolByClassId(mapSettingsStoreClassId)
-                as? FirClassSymbol<*>
+            as? FirClassSymbol<*>
             ?: return false
 
     return mapSettingsStoreSymbol.isSupertypeOf(this, session)
 }
 
-
 internal fun IrClass.isClassIdSupertype(classId: ClassId): Boolean {
-
     if (this.classId == classId) {
         return true
     }

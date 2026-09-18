@@ -49,16 +49,16 @@ public fun <T, R> SettingObject<T, R>.asMutableState(default: T? = null): Mutabl
                 get() = state
                 set(value) {
                     scope.launch {
-                       this@asMutableState.set(ctx, value)
+                        this@asMutableState.set(ctx, value)
                     }
                 }
 
             override fun component1() = value
+
             override fun component2(): (T) -> Unit = { value = it }
         }
     }
 }
-
 
 /**
  * Collects the current value of this setting as a Compose [State] that allows null values.
@@ -101,6 +101,7 @@ public fun <T, R> SettingObject<T, R>.asMutableStateNull(): MutableState<T?> {
                 }
 
             override fun component1() = value
+
             override fun component2(): (T?) -> Unit = { value = it }
         }
     }

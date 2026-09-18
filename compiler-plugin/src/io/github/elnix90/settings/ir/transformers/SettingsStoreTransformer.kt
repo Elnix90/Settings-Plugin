@@ -70,15 +70,13 @@ import org.jetbrains.kotlin.name.Name
  */
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class SettingsStoreTransformer(
-    private val ctx: IrPluginContext,
+    private val ctx: IrPluginContext
 ) : IrElementTransformerVoid() {
-
     /**
      * Generate the `ALL` if it is a implementation of `MapSettingsStore`
      * and the `name` in all cases
      */
     override fun visitClass(declaration: IrClass): IrStatement {
-
         val hasSettingsStoreAnnotation = ctx.hasSettingsStoreAnnotation(declaration)
         val isMapSettingsStore = declaration.isMapSettingsStore()
 
@@ -94,30 +92,24 @@ internal class SettingsStoreTransformer(
      */
     @OptIn(FirIncompatiblePluginAPI::class, ObsoleteDescriptorBasedAPI::class)
     private fun generateAllPropertyBody(storeClass: IrClass) {
-
         val allProperty = storeClass.properties.firstOrNull {
             it.name.asString() == "ALL"
         } ?: return
-
 
         val settingKeyProperties = storeClass.properties
             .filter { prop -> ctx.hasSettingKeyAnnotation(prop) }
             .toList()
 
-
         if (settingKeyProperties.isEmpty()) return
-
 
         val setOfSymbol = ctx
             .referenceFunctions(
                 CallableId(FqName("kotlin.collections"), Name.identifier("setOf"))
-            )
-            .firstOrNull {
+            ).firstOrNull {
                 val param = it.owner.parameters
                 param.size == 1 && param[0].isVararg
             }
             ?: error("Cannot find setOf(vararg)")
-
 
         val thisReceiver = IrGetValueImpl(
             startOffset = storeClass.startOffset,
@@ -149,7 +141,6 @@ internal class SettingsStoreTransformer(
             superQualifierSymbol = null
         )
 
-
         val settingsObjectClass =
             ctx.referenceClass(settingObjectClassId)
                 ?: error("SettingObject not found")
@@ -176,7 +167,6 @@ internal class SettingsStoreTransformer(
 
         call.typeArguments[0] = settingObjectType
         call.arguments[0] = vararg
-
 
         allProperty.backingField?.initializer = ctx.irFactory.createExpressionBody(call)
     }

@@ -21,7 +21,7 @@ class SettingsGradlePlugin : KotlinCompilerPluginSupportPlugin {
     override fun getPluginArtifact(): SubpluginArtifact = SubpluginArtifact(
         groupId = BuildConfig.KOTLIN_PLUGIN_GROUP,
         artifactId = BuildConfig.KOTLIN_PLUGIN_NAME,
-        version = BuildConfig.KOTLIN_PLUGIN_VERSION,
+        version = BuildConfig.KOTLIN_PLUGIN_VERSION
     )
 
     override fun applyToCompilation(

@@ -20,9 +20,10 @@ public data class FloatSettingObject internal constructor(
     override val settingsStore: SettingsStore<*, *>,
     val allowedRange: ClosedFloatingPointRange<Float>
 ) : SettingObject<Float, Float>() {
-
     override val preferenceKey: Preferences.Key<Float> = floatPreferencesKey(preferenceKeyName)
+
     override fun encode(value: Float): Float = value
+
     override fun decode(raw: Any?): Float = getFloatStrict(raw, default).coerceIn(allowedRange)
 }
 
@@ -67,11 +68,9 @@ public fun MapSettingsStore.float(
 private fun getFloatStrict(
     raw: Any?,
     def: Float
-): Float {
-    return when (raw) {
-        is Float -> raw
-        is Number -> raw.toFloat()
-        is String -> raw.toFloatOrNull()
-        else -> null
-    } ?: def
-}
+): Float = when (raw) {
+    is Float -> raw
+    is Number -> raw.toFloat()
+    is String -> raw.toFloatOrNull()
+    else -> null
+} ?: def

@@ -30,7 +30,6 @@ import org.json.JSONException
 public abstract class JsonArraySettingsStore(
     override val backupable: Boolean = true
 ) : SettingsStore<JSONArray?, JSONArray>(backupable) {
-
     /**
      * Underlying setting that stores the JSON payload as a raw string.
      */
@@ -45,6 +44,7 @@ public abstract class JsonArraySettingsStore(
         settingsStore = this
     )
 
+    @Suppress("ktlint:standard:property-naming")
     final override val ALL: Set<SettingObject<*, *>> = setOf(jsonSetting)
 
     /**
@@ -63,7 +63,6 @@ public abstract class JsonArraySettingsStore(
             null
         }
     }
-
 
     /**
      * Serializes and writes the provided [JSONArray] into DataStore.

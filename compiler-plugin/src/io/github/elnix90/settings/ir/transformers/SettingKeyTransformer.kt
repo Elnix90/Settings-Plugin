@@ -53,9 +53,8 @@ import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
  */
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class SettingKeyTransformer(
-    private val ctx: IrPluginContext,
+    private val ctx: IrPluginContext
 ) : IrElementTransformerVoid() {
-
     override fun visitProperty(
         declaration: IrProperty
     ): IrStatement {
@@ -112,16 +111,22 @@ internal class SettingKeyTransformer(
  */
 private fun IrExpression.findCall(): IrCall? =
     when (this) {
-        is IrCall -> this
+        is IrCall -> {
+            this
+        }
 
-        is IrBlock ->
+        is IrBlock -> {
             statements
                 .lastOrNull()
                 ?.let { it as? IrExpression }
                 ?.findCall()
+        }
 
-        is IrTypeOperatorCall ->
+        is IrTypeOperatorCall -> {
             argument.findCall()
+        }
 
-        else -> null
+        else -> {
+            null
+        }
     }

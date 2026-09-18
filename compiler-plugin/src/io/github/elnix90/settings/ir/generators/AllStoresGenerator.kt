@@ -87,7 +87,6 @@ internal class AllStoresGenerator(
     ) {
         val stores: Set<IrClass> = collectStores(module)
 
-
         val allStoresFields = module
             .files
             .flatMap { it.declarations }
@@ -119,9 +118,10 @@ internal class AllStoresGenerator(
                     Name.identifier("setOf")
                 )
             ).first {
-                it.owner.parameters.singleOrNull()?.isVararg == true
+                it.owner.parameters
+                    .singleOrNull()
+                    ?.isVararg == true
             }
-
 
         val call = IrCallImpl(
             startOffset = UNDEFINED_OFFSET,
@@ -163,7 +163,6 @@ internal class AllStoresGenerator(
         allStoresField.initializer = ctx.irFactory.createExpressionBody(call)
     }
 
-
     /**
      * Kinda like the other transformers, but as an anonymous object, that simply lists all the stores and return a list of them
      */
@@ -173,20 +172,22 @@ internal class AllStoresGenerator(
     ): Set<IrClass> {
         val stores = mutableSetOf<IrClass>()
 
-        module.accept(object : IrVisitorVoid() {
-
-            override fun visitElement(element: IrElement) {
-                element.acceptChildren(this, null)
-            }
-
-            override fun visitClass(declaration: IrClass) {
-                if (declaration.hasAnnotation(settingsStoreAnnotationClassId)) {
-                    stores += declaration
+        module.accept(
+            object : IrVisitorVoid() {
+                override fun visitElement(element: IrElement) {
+                    element.acceptChildren(this, null)
                 }
 
-                super.visitClass(declaration)
-            }
-        }, null)
+                override fun visitClass(declaration: IrClass) {
+                    if (declaration.hasAnnotation(settingsStoreAnnotationClassId)) {
+                        stores += declaration
+                    }
+
+                    super.visitClass(declaration)
+                }
+            },
+            null
+        )
 
         return stores
     }

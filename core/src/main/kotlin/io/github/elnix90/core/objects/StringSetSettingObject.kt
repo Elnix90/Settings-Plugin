@@ -19,9 +19,10 @@ public data class StringSetSettingObject internal constructor(
     override val backupable: Boolean,
     override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<Set<String>, Set<String>>() {
-
     override val preferenceKey: Preferences.Key<Set<String>> = stringSetPreferencesKey(preferenceKeyName)
+
     override fun encode(value: Set<String>): Set<String> = value
+
     override fun decode(raw: Any?): Set<String> = getStringSetStrict(raw, default)
 }
 
@@ -65,8 +66,14 @@ private fun getStringSetStrict(
     def: Set<String>
 ): Set<String> {
     return when (raw) {
-        is Set<*> -> raw.flattenStrings().toSet()
-        is List<*> -> raw.flattenStrings().toSet()
+        is Set<*> -> {
+            raw.flattenStrings().toSet()
+        }
+
+        is List<*> -> {
+            raw.flattenStrings().toSet()
+        }
+
         is String -> {
             // Parse "[a,b,c]" → ["a","b","c"]
             try {
@@ -74,7 +81,8 @@ private fun getStringSetStrict(
                 val clean = raw.trim().removeSurrounding("[", "]")
                 if (clean.isBlank()) return emptySet()
 
-                clean.split(",")
+                clean
+                    .split(",")
                     .map { it.trim().trim('"').trim('\'') }
                     .filter { it.isNotBlank() }
                     .toSet()
@@ -83,7 +91,9 @@ private fun getStringSetStrict(
             }
         }
 
-        else -> null
+        else -> {
+            null
+        }
     } ?: def
 }
 

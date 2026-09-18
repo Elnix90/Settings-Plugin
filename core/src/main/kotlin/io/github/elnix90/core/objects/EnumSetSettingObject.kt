@@ -22,7 +22,9 @@ public data class EnumSetSettingObject<E : Enum<E>>(
     val enumClass: Class<E>
 ) : SettingObject<Set<E>, Set<String>>() {
     override val preferenceKey: Preferences.Key<Set<String>> = stringSetPreferencesKey(preferenceKeyName)
+
     override fun encode(value: Set<E>): Set<String> = value.mapTo(mutableSetOf()) { it.name }
+
     override fun decode(raw: Any?): Set<E> = getEnumSetStrict(raw, default, enumClass)
 }
 
@@ -62,29 +64,28 @@ public inline fun <reified E : Enum<E>> MapSettingsStore.enumSet(
     settingsStore = this
 )
 
-
 private fun <E : Enum<E>> getEnumSetStrict(
     raw: Any?,
     def: Set<E>,
     enumClass: Class<E>
-): Set<E> {
+): Set<E> = when (raw) {
+    is String -> {
+        try {
+            raw
+                .takeIf { it.isNotEmpty() }
+                ?.split(",")
+                ?.mapNotNull { elem ->
+                    enumClass.enumConstants
+                        ?.firstOrNull { it.name == elem.trim() }
+                }.orEmpty()
+                .toSet()
+        } catch (e: Exception) {
+            logE(SETTINGS_TAG, e) { "Failed to decode enumClass $enumClass object, using default value" }
+            null
+        }
+    }
 
-    return when (raw) {
-        is String ->
-            try {
-                raw
-                    .takeIf { it.isNotEmpty() }
-                    ?.split(",")
-                    ?.mapNotNull { elem ->
-                        enumClass.enumConstants
-                            ?.firstOrNull { it.name == elem.trim() }
-                    }.orEmpty()
-                    .toSet()
-            } catch (e: Exception) {
-                logE(SETTINGS_TAG, e) { "Failed to decode enumClass $enumClass object, using default value" }
-                null
-            }
-
-        else -> null
-    } ?: def
-}
+    else -> {
+        null
+    }
+} ?: def

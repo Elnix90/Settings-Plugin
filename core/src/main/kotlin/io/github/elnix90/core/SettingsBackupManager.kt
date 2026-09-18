@@ -33,7 +33,6 @@ public object SettingsBackupManager {
         }
     }
 
-
     public suspend fun createJsonToExport(
         ctx: Context,
         requestedStores: Set<SettingsStore<*, *>>,
@@ -52,7 +51,6 @@ public object SettingsBackupManager {
 
         return json
     }
-
 
     /**
      * Exports only the requested stores.

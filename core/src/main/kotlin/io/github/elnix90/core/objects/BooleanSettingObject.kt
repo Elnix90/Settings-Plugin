@@ -7,7 +7,6 @@ import io.github.elnix90.core.stores.MapSettingsStore
 import io.github.elnix90.core.stores.SettingsStore
 import io.github.elnix90.core.util.isNotBlankKey
 
-
 @Stable
 @ConsistentCopyVisibility
 public data class BooleanSettingObject internal constructor(
@@ -20,9 +19,10 @@ public data class BooleanSettingObject internal constructor(
     override val backupable: Boolean,
     override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<Boolean, Boolean>() {
-
     override val preferenceKey: Preferences.Key<Boolean> = booleanPreferencesKey(preferenceKeyName)
+
     override fun encode(value: Boolean): Boolean = value
+
     override fun decode(raw: Any?): Boolean = getBooleanStrict(raw, default)
 }
 
@@ -61,21 +61,20 @@ public fun MapSettingsStore.boolean(
     settingsStore = this
 )
 
-
 @Suppress("NOTHING_TO_INLINE")
 private inline fun getBooleanStrict(
     raw: Any?,
     def: Boolean
-): Boolean {
-    return when (raw) {
-        is Boolean -> raw
-        is Number -> raw.toInt() != 0
-        is String -> when (raw.trim().lowercase()) {
-            "true", "1", "yes", "y", "on" -> true
-            "false", "0", "no", "n", "off" -> false
-            else -> null
-        }
+): Boolean = when (raw) {
+    is Boolean -> raw
 
+    is Number -> raw.toInt() != 0
+
+    is String -> when (raw.trim().lowercase()) {
+        "true", "1", "yes", "y", "on" -> true
+        "false", "0", "no", "n", "off" -> false
         else -> null
-    } ?: def
-}
+    }
+
+    else -> null
+} ?: def

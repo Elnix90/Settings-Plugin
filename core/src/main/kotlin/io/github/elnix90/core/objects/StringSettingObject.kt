@@ -16,11 +16,13 @@ public data class StringSettingObject internal constructor(
     override val description: Int?,
     override val icon: Int?,
     override var onChanged: (() -> Unit)?,
-    override val backupable: Boolean, override val settingsStore: SettingsStore<*, *>
+    override val backupable: Boolean,
+    override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<String, String>() {
-
     override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
+
     override fun encode(value: String): String = value
+
     override fun decode(raw: Any?): String = getStringStrict(raw, default)
 }
 
@@ -62,10 +64,8 @@ public fun MapSettingsStore.string(
 private fun getStringStrict(
     raw: Any?,
     def: String
-): String {
-    return when (raw) {
-        is String -> raw
-        null -> def
-        else -> raw.toString()
-    }
+): String = when (raw) {
+    is String -> raw
+    null -> def
+    else -> raw.toString()
 }

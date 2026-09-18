@@ -22,9 +22,10 @@ public data class DpSettingObject internal constructor(
     override val settingsStore: SettingsStore<*, *>,
     val allowedRange: ClosedRange<Dp>
 ) : SettingObject<Dp, Int>() {
-
     override val preferenceKey: Preferences.Key<Int> = intPreferencesKey(preferenceKeyName)
+
     override fun encode(value: Dp): Int = value.value.toInt()
+
     override fun decode(raw: Any?): Dp = getDpStrict(raw, default).coerceIn(allowedRange)
 }
 
@@ -69,11 +70,9 @@ public fun MapSettingsStore.dp(
 private fun getDpStrict(
     raw: Any?,
     def: Dp
-): Dp {
-    return when (raw) {
-        is Int -> raw.dp
-        is Number -> raw.toInt().dp
-        is String -> raw.toIntOrNull()?.dp
-        else -> null
-    } ?: def
-}
+): Dp = when (raw) {
+    is Int -> raw.dp
+    is Number -> raw.toInt().dp
+    is String -> raw.toIntOrNull()?.dp
+    else -> null
+} ?: def

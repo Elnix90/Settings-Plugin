@@ -22,7 +22,9 @@ public data class EnumListSettingObject<E : Enum<E>>(
     val enumClass: Class<E>
 ) : SettingObject<List<E>, String>() {
     override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
+
     override fun encode(value: List<E>): String = value.joinToString(",") { it.name }
+
     override fun decode(raw: Any?): List<E> = getEnumListStrict(raw, default, enumClass)
 }
 
@@ -62,7 +64,6 @@ public inline fun <reified E : Enum<E>> MapSettingsStore.enumList(
     settingsStore = this
 )
 
-
 /**
  * Decodes a list of enum from a string, comma separated statements
  */
@@ -71,7 +72,7 @@ internal fun <E : Enum<E>> getEnumListStrict(
     def: List<E>,
     enumClass: Class<E>
 ): List<E> = when (raw) {
-    is String ->
+    is String -> {
         try {
             raw
                 .takeIf { it.isNotEmpty() }
@@ -84,7 +85,9 @@ internal fun <E : Enum<E>> getEnumListStrict(
             logE(SETTINGS_TAG, e) { "Failed to decode enumClass $enumClass object, using default value" }
             null
         }
+    }
 
-    else -> null
+    else -> {
+        null
+    }
 } ?: def
-

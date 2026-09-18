@@ -1,3 +1,4 @@
+@file:Suppress("ktlint")
 package io.github.elnix90.settings.fir
 
 import io.github.elnix90.settings.util.ClassIds.settingKeyAnnotationClassId
@@ -11,7 +12,7 @@ import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
 
-internal class SettingKeyChecker : FirPropertyChecker(MppCheckerKind.Common) {
+internal class SettingKeyChecker: FirPropertyChecker(MppCheckerKind.Common) {
 
     @OptIn(SymbolInternals::class)
     context(

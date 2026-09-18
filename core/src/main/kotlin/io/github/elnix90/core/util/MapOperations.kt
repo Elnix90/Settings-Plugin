@@ -26,7 +26,7 @@ internal suspend inline fun MutableMap<String, Any>.putIfNotNull(
 }
 
 internal suspend inline fun SettingObject<*, *>.isNotNullOrDefault(
-    ctx: Context,
+    ctx: Context
 ): Boolean {
     val value = this.get(ctx)
     return value != null && value != this.default

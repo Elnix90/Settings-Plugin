@@ -13,12 +13,10 @@ internal fun IrPluginContext.hasAllStoresAnnotation(
 ): Boolean =
     declaration.hasAnnotation(referenceClass(allStoresAnnotationClassId) ?: return false)
 
-
 internal fun IrPluginContext.hasSettingKeyAnnotation(
     declaration: IrProperty
 ): Boolean =
     declaration.hasAnnotation(referenceClass(settingKeyAnnotationClassId) ?: return false)
-
 
 internal fun IrPluginContext.hasSettingsStoreAnnotation(
     declaration: IrClass

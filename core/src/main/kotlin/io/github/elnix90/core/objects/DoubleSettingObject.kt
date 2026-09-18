@@ -20,9 +20,10 @@ public data class DoubleSettingObject internal constructor(
     override val settingsStore: SettingsStore<*, *>,
     val allowedRange: ClosedRange<Double>
 ) : SettingObject<Double, Double>() {
-
     override val preferenceKey: Preferences.Key<Double> = doublePreferencesKey(preferenceKeyName)
+
     override fun encode(value: Double): Double = value
+
     override fun decode(raw: Any?): Double = getDoubleStrict(raw, default).coerceIn(allowedRange)
 }
 
@@ -67,11 +68,9 @@ public fun MapSettingsStore.double(
 private fun getDoubleStrict(
     raw: Any?,
     def: Double
-): Double {
-    return when (raw) {
-        is Double -> raw
-        is Number -> raw.toDouble()
-        is String -> raw.toDoubleOrNull()
-        else -> null
-    } ?: def
-}
+): Double = when (raw) {
+    is Double -> raw
+    is Number -> raw.toDouble()
+    is String -> raw.toDoubleOrNull()
+    else -> null
+} ?: def

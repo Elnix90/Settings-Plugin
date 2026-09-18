@@ -15,11 +15,17 @@ extensions.configure<LibraryExtension> {
     namespace = "io.github.elnix90.runtime"
 
     compileSdk {
-        version = release(libs.versions.compileSdk.get().toInt())
+        version = release(
+            libs.versions.compileSdk
+                .get()
+                .toInt()
+        )
     }
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
+        minSdk = libs.versions.minSdk
+            .get()
+            .toInt()
     }
 
     compileOptions {

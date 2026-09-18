@@ -26,7 +26,6 @@ import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 
-
 /**
  * FIR declaration generation extension responsible for creating the synthetic
  * `ALL` property for classes annotated with `@SettingsStore`.
@@ -74,8 +73,9 @@ import org.jetbrains.kotlin.name.Name
  * The generated declaration is marked using [Key] so it can be identified as a
  * compiler-generated member during later compilation stages.
  */
-internal class SettingsStoreFirExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
-
+internal class SettingsStoreFirExtension(
+    session: FirSession
+) : FirDeclarationGenerationExtension(session) {
     /**
      * Returns true for each class it visits, because I found it easier to check whether the object/class has an annotation during the second phase
      */
@@ -84,7 +84,6 @@ internal class SettingsStoreFirExtension(session: FirSession) : FirDeclarationGe
         classSymbol: FirClassSymbol<*>,
         context: MemberGenerationContext
     ): Set<Name> = setOf(Name.identifier("ALL"))
-
 
     /**
      * Checks whether the class it visits has the `@SettingsStore` annotation
@@ -140,7 +139,7 @@ internal class SettingsStoreFirExtension(session: FirSession) : FirDeclarationGe
             key = Key,
             name = Name.identifier("ALL"),
             returnType = setType,
-            isVal = true,
+            isVal = true
         )
 
         return listOf(allProperty.symbol)

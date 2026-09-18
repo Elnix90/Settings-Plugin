@@ -29,7 +29,6 @@ import org.json.JSONObject
 public abstract class MapSettingsStore(
     override val backupable: Boolean = true
 ) : SettingsStore<Map<String, Any?>, JSONObject>(backupable) {
-
     /**
      * Reads all settings from the store and returns them as a map.
      * When [forceAllKeys] **isn't** enabled, skips the value if the decoded is null
@@ -63,11 +62,12 @@ public abstract class MapSettingsStore(
      * Exports all settings into a single [JSONObject] for backup purposes.
      */
     final override suspend fun exportForBackup(ctx: Context, forceAllKeys: Boolean): JSONObject? {
-
         val map = getAll(ctx, forceAllKeys)
         return if (map.isNotEmpty()) {
             JSONObject(map)
-        } else null
+        } else {
+            null
+        }
     }
 
     /**

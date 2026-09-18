@@ -19,11 +19,11 @@ public data class StringListSettingObject internal constructor(
     override val backupable: Boolean,
     override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<List<String>, String>() {
-
     override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
-    override fun encode(value: List<String>): String = value.joinToString(",")
-    override fun decode(raw: Any?): List<String> = getStringListStrict(raw, default)
 
+    override fun encode(value: List<String>): String = value.joinToString(",")
+
+    override fun decode(raw: Any?): List<String> = getStringListStrict(raw, default)
 }
 
 /**
@@ -69,7 +69,8 @@ private fun getStringListStrict(
         with(raw.toString()) {
             val clean = trim()
             if (clean.isBlank()) return emptyList()
-            clean.split(",")
+            clean
+                .split(",")
                 .map { it.trim().trim('"').trim('\'') }
                 .filter { it.isNotBlank() }
         }

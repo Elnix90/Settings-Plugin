@@ -20,9 +20,10 @@ public data class ColorSettingObject internal constructor(
     override val backupable: Boolean,
     override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<Color, String>() {
-
     override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
+
     override fun encode(value: Color): String = value.toHexWithAlpha(false)
+
     override fun decode(raw: Any?): Color = getColorStrict(raw, default)
 }
 
@@ -64,18 +65,28 @@ public fun MapSettingsStore.color(
 private fun getColorStrict(
     raw: Any?,
     def: Color
-): Color {
-    return when (raw) {
-        null -> null
-        // Old storage format
-        is Int -> Color(raw)
-        is Number -> Color(raw.toInt())
-        // New readable format, fallbacks to old format
-        is String -> {
-            raw.toLongOrNull(16)
-                ?.let { Color(it.toInt()) }
-        }
+): Color = when (raw) {
+    null -> {
+        null
+    }
 
-        else -> null
-    } ?: def
-}
+    // Old storage format
+    is Int -> {
+        Color(raw)
+    }
+
+    is Number -> {
+        Color(raw.toInt())
+    }
+
+    // New readable format, fallbacks to old format
+    is String -> {
+        raw
+            .toLongOrNull(16)
+            ?.let { Color(it.toInt()) }
+    }
+
+    else -> {
+        null
+    }
+} ?: def

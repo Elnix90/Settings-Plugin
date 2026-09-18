@@ -13,12 +13,9 @@ internal class SettingPluginComponentRegistrar : CompilerPluginRegistrar() {
         get() = true
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
-
-
         FirExtensionRegistrarAdapter.registerExtension(
             SettingsStoreFirRegistrar()
         )
-
 
         IrGenerationExtension.registerExtension(
             SettingsIrGenerationExtension()

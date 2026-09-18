@@ -19,11 +19,11 @@ public data class EnumSettingObject<E : Enum<E>>(
     override val settingsStore: SettingsStore<*, *>,
     val enumClass: Class<E>
 ) : SettingObject<E, String>() {
-
     override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
-    override fun encode(value: E): String = value.name
-    override fun decode(raw: Any?): E = getEnumStrict(raw, default, enumClass)
 
+    override fun encode(value: E): String = value.name
+
+    override fun decode(raw: Any?): E = getEnumStrict(raw, default, enumClass)
 }
 
 /**
@@ -66,8 +66,6 @@ private fun <E : Enum<E>> getEnumStrict(
     raw: Any?,
     def: E,
     enumClass: Class<E>
-): E {
-    return enumClass.enumConstants
-        ?.firstOrNull { it.name == raw }
-        ?: def
-}
+): E = enumClass.enumConstants
+    ?.firstOrNull { it.name == raw }
+    ?: def

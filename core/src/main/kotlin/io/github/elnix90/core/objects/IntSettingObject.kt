@@ -20,12 +20,12 @@ public data class IntSettingObject internal constructor(
     override val settingsStore: SettingsStore<*, *>,
     val allowedRange: IntRange
 ) : SettingObject<Int, Int>() {
-
     override val preferenceKey: Preferences.Key<Int> = intPreferencesKey(preferenceKeyName)
+
     override fun encode(value: Int): Int = value
+
     override fun decode(raw: Any?): Int = getIntStrict(raw, default).coerceIn(allowedRange)
 }
-
 
 /**
  * Creates an [IntSettingObject] with a title and description.
@@ -68,11 +68,9 @@ public fun MapSettingsStore.int(
 internal fun getIntStrict(
     raw: Any?,
     def: Int
-): Int {
-    return when (raw) {
-        is Int -> raw
-        is Number -> raw.toInt()
-        is String -> raw.toIntOrNull()
-        else -> null
-    } ?: def
-}
+): Int = when (raw) {
+    is Int -> raw
+    is Number -> raw.toInt()
+    is String -> raw.toIntOrNull()
+    else -> null
+} ?: def

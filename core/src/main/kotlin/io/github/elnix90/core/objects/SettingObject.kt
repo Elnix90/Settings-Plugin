@@ -35,7 +35,6 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
 @Stable
 @OptIn(ExperimentalAtomicApi::class)
 public abstract class SettingObject<TYPED, ENCODED> {
-
     /**
      * The [SettingsStore] in which this [SettingObject] is in
      */
@@ -73,7 +72,7 @@ public abstract class SettingObject<TYPED, ENCODED> {
     /**
      * Fallback value when no persisted value exists.
      * Initial value that takes the object when first initialized
-     * @see _cachedValue
+     * @see cachedValue
      */
     public abstract val default: TYPED
 
@@ -97,7 +96,6 @@ public abstract class SettingObject<TYPED, ENCODED> {
      */
     public abstract var onChanged: (() -> Unit)?
 
-
     /**
      * Whether if this setting should be added to the backup or not.
      * It is always added when the parameter `forceAllKeys` is `true` during an export
@@ -105,17 +103,15 @@ public abstract class SettingObject<TYPED, ENCODED> {
      */
     public abstract val backupable: Boolean
 
-
     /**
      * Private cache to avoid fetching value from the Datastore every time
      * The cache initializes to the [default] provided value, and should be **loaded** when someone subscribe to the [flow], or [get] the value
      *
      * Initialized **lazily** because it caused crashes when tried to be accessed in early initialization time. Using the lazy shouldn't cost much and allow the parameter ([default]) to be loaded before the [MutableStateFlow] initializes
      */
-    private val _cachedValue: MutableStateFlow<TYPED> by lazy {
+    private val cachedValue: MutableStateFlow<TYPED> by lazy {
         MutableStateFlow(default)
     }
-
 
     private val mutex = Mutex()
 
@@ -123,7 +119,6 @@ public abstract class SettingObject<TYPED, ENCODED> {
      * Internal value to track whether the value has been loaded from the datastore or not.
      */
     private var isInitialized = AtomicBoolean(false)
-
 
     /**
      * Internally loads the value from the datastore if not already
@@ -148,10 +143,10 @@ public abstract class SettingObject<TYPED, ENCODED> {
                 }
             } ?: default
 
-            _cachedValue.value = decoded
+            cachedValue.value = decoded
 
             isInitialized.store(true)
-            return _cachedValue.value
+            return cachedValue.value
         }
     }
 
@@ -179,7 +174,6 @@ public abstract class SettingObject<TYPED, ENCODED> {
         }
     }
 
-
     /**
      * Get the value one shot for logic, no flow
      * Returns null if the value is not defined or uses the [default] value
@@ -197,14 +191,11 @@ public abstract class SettingObject<TYPED, ENCODED> {
      * @param ctx
      * @return decoded value of settings type [TYPED]
      */
-    public suspend fun get(ctx: Context): TYPED {
-        return if (!isInitialized.load()) {
-            loadValue(ctx)
-        } else {
-            _cachedValue.value
-        }
+    public suspend fun get(ctx: Context): TYPED = if (!isInitialized.load()) {
+        loadValue(ctx)
+    } else {
+        cachedValue.value
     }
-
 
     /**
      * Returns the value encoded for the backup
@@ -228,7 +219,7 @@ public abstract class SettingObject<TYPED, ENCODED> {
      * @return [Flow] of the settings type [TYPED]
      */
     public fun flow(ctx: Context): Flow<TYPED> =
-        _cachedValue
+        cachedValue
             .asStateFlow()
             .onStart {
                 if (!isInitialized.load()) {
@@ -249,7 +240,7 @@ public abstract class SettingObject<TYPED, ENCODED> {
                 return
             }
 
-            if (value == _cachedValue.value) return
+            if (value == cachedValue.value) return
 
             val encoded: ENCODED? = encode(value)
             if (encoded == null) {
@@ -258,7 +249,7 @@ public abstract class SettingObject<TYPED, ENCODED> {
                 return
             }
 
-            _cachedValue.value = value
+            cachedValue.value = value
             withContext(Dispatchers.IO) {
                 ctx.dataStore.edit {
                     it[preferenceKey] = encoded
@@ -271,7 +262,6 @@ public abstract class SettingObject<TYPED, ENCODED> {
         }
     }
 
-
     /**
      * Removes the value of the [preferenceKey] from the datastore and sets its cached value to [default]
      *
@@ -279,7 +269,7 @@ public abstract class SettingObject<TYPED, ENCODED> {
      */
     public suspend fun reset(ctx: Context) {
         try {
-            _cachedValue.value = default
+            cachedValue.value = default
             withContext(Dispatchers.IO) {
                 ctx.dataStore.edit {
                     it.remove(preferenceKey)

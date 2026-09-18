@@ -20,12 +20,12 @@ public data class LongSettingObject internal constructor(
     override val settingsStore: SettingsStore<*, *>,
     val allowedRange: ClosedRange<Long>
 ) : SettingObject<Long, Long>() {
-
     override val preferenceKey: Preferences.Key<Long> = longPreferencesKey(preferenceKeyName)
+
     override fun encode(value: Long): Long = value
+
     override fun decode(raw: Any?): Long = getLongStrict(raw, default).coerceIn(allowedRange)
 }
-
 
 /**
  * Creates a [LongSettingObject] with a title and description.
@@ -68,11 +68,9 @@ public fun MapSettingsStore.long(
 private fun getLongStrict(
     raw: Any?,
     def: Long
-): Long {
-    return when (raw) {
-        is Long -> raw
-        is Number -> raw.toLong()
-        is String -> raw.toLongOrNull()
-        else -> null
-    } ?: def
-}
+): Long = when (raw) {
+    is Long -> raw
+    is Number -> raw.toLong()
+    is String -> raw.toLongOrNull()
+    else -> null
+} ?: def

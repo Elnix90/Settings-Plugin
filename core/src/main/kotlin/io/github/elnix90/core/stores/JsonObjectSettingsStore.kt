@@ -30,7 +30,6 @@ import org.json.JSONObject
 public abstract class JsonObjectSettingsStore(
     override val backupable: Boolean = true
 ) : SettingsStore<JSONObject?, JSONObject>(backupable) {
-
     /**
      * Underlying setting that stores the JSON payload as a raw string.
      */
@@ -45,6 +44,7 @@ public abstract class JsonObjectSettingsStore(
         settingsStore = this
     )
 
+    @Suppress("ktlint:standard:property-naming")
     final override val ALL: Set<SettingObject<*, *>> = setOf(jsonSetting)
 
     /**
@@ -63,7 +63,6 @@ public abstract class JsonObjectSettingsStore(
             null
         }
     }
-
 
     /**
      * Serializes and writes the provided [JSONObject] into DataStore.
