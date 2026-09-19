@@ -11,7 +11,7 @@ description = "Publish to maven local"
 
 [tasks.format]
 run = "ktlint --format"
-description = "Run Android Lint"
+description = "Run ktlint format"
 
 [tasks.clean]
 run = "./gradlew clean"
