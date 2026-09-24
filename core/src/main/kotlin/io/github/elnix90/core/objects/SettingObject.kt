@@ -113,13 +113,6 @@ public abstract class SettingObject<TYPED, ENCODED> {
         MutableStateFlow(default)
     }
 
-    /**
-     * A directly accessible value with no check whether if the value is loaded or not.
-     *
-     * BEFORE CALLING THIS YOU MUST USE THE [load] method to ensure the stored data is in the datastore
-     */
-    public val value: TYPED = cachedValue.value
-
     private val mutex = Mutex()
 
     /**
@@ -202,19 +195,6 @@ public abstract class SettingObject<TYPED, ENCODED> {
         loadValue(ctx)
     } else {
         cachedValue.value
-    }
-
-    /**
-     * Loads the value from the datastore and stores it in the [cachedValue]
-     *
-     * @param ctx
-     * @return whether the value was initialized (if it wasn't already)
-     */
-    public suspend fun load(ctx: Context): Boolean = if (!isInitialized.load()) {
-        loadValue(ctx)
-        true
-    } else {
-        false
     }
 
     /**
