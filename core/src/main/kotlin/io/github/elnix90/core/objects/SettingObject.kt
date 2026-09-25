@@ -11,12 +11,16 @@ import io.github.elnix90.core.util.dataStore
 import io.github.elnix90.core.util.prefixes
 import io.github.elnix90.logging.logE
 import io.github.elnix90.logging.logW
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -226,6 +230,26 @@ public abstract class SettingObject<TYPED, ENCODED> {
                     loadValue(ctx)
                 }
             }
+
+    /**
+     * Outputs a [StateFlow] of the value, used in ViewModels
+     *
+     * If no collectors of this flow are present, and you only use the view models to get the .value, you need to use [started] with [SharingStarted.Eagerly].
+     * Otherwise, it would not load and update the value
+     *
+     * @return [StateFlow] of the settings type [TYPED]
+     */
+    public fun stateFlow(ctx: Context, scope: CoroutineScope, started: SharingStarted = SharingStarted.Eagerly): StateFlow<TYPED> =
+        cachedValue
+            .onStart {
+                if (!isInitialized.load()) {
+                    loadValue(ctx)
+                }
+            }.stateIn(
+                scope = scope,
+                started = started,
+                initialValue = default
+            )
 
     /**
      * Saves the value in the datastore for persistence
