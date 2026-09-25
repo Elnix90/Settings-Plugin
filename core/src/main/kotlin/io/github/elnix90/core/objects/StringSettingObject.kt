@@ -10,20 +10,20 @@ import io.github.elnix90.core.util.isNotBlankKey
 @Stable
 @ConsistentCopyVisibility
 public data class StringSettingObject internal constructor(
-    override val key: String,
-    override val default: String,
-    override val title: Int?,
-    override val description: Int?,
-    override val icon: Int?,
-    override var onChanged: (() -> Unit)?,
-    override val backupable: Boolean,
-    override val settingsStore: SettingsStore<*, *>
+	override val key: String,
+	override val default: String,
+	override val title: Int?,
+	override val description: Int?,
+	override val icon: Int?,
+	override var onChanged: (() -> Unit)?,
+	override val backupable: Boolean,
+	override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<String, String>() {
-    override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
+	override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
 
-    override fun encode(value: String): String = value
+	override fun encode(value: String): String = value
 
-    override fun decode(raw: Any?): String = getStringStrict(raw, default)
+	override fun decode(raw: Any?): String = getStringStrict(raw, default)
 }
 
 /**
@@ -43,29 +43,29 @@ public data class StringSettingObject internal constructor(
  * @return A [StringSettingObject] configured with the provided parameters.
  */
 public fun MapSettingsStore.string(
-    default: String,
-    title: Int? = null,
-    description: Int? = null,
-    icon: Int? = null,
-    key: String = "",
-    onChanged: (() -> Unit)? = null,
-    backupable: Boolean = true
+	default: String,
+	title: Int? = null,
+	description: Int? = null,
+	icon: Int? = null,
+	key: String = "",
+	onChanged: (() -> Unit)? = null,
+	backupable: Boolean = true
 ): StringSettingObject = StringSettingObject(
-    key = key.isNotBlankKey,
-    title = title,
-    description = description,
-    icon = icon,
-    default = default,
-    onChanged = onChanged,
-    backupable = backupable,
-    settingsStore = this
+	key = key.isNotBlankKey,
+	title = title,
+	description = description,
+	icon = icon,
+	default = default,
+	onChanged = onChanged,
+	backupable = backupable,
+	settingsStore = this
 )
 
 private fun getStringStrict(
-    raw: Any?,
-    def: String
+	raw: Any?,
+	def: String
 ): String = when (raw) {
-    is String -> raw
-    null -> def
-    else -> raw.toString()
+	is String -> raw
+	null -> def
+	else -> raw.toString()
 }

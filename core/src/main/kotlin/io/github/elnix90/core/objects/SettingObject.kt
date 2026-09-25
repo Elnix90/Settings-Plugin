@@ -39,270 +39,270 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
 @Stable
 @OptIn(ExperimentalAtomicApi::class)
 public abstract class SettingObject<TYPED, ENCODED> {
-    /**
-     * The [SettingsStore] in which this [SettingObject] is in
-     */
-    public abstract val settingsStore: SettingsStore<*, *>
+	/**
+	 * The [SettingsStore] in which this [SettingObject] is in
+	 */
+	public abstract val settingsStore: SettingsStore<*, *>
 
-    /**
-     * Unique identifier for this setting.
-     * It is auto inferred via the [SettingObject] builders functions during at compile-time via the [Settings compiler plugin](https://github.com/Elnix90/Settings-Plugin)
-     */
-    public abstract val key: String
+	/**
+	 * Unique identifier for this setting.
+	 * It is auto inferred via the [SettingObject] builders functions during at compile-time via the [Settings compiler plugin](https://github.com/Elnix90/Settings-Plugin)
+	 */
+	public abstract val key: String
 
-    public val preferenceKeyName: String by lazy { settingsStore prefixes key }
+	public val preferenceKeyName: String by lazy { settingsStore prefixes key }
 
-    /**
-     * The title of this setting.
-     * It's the ressource ID that links to an i18n string, that android resolves depending on the app language
-     * Used in Compose to automatically infer title via the property instead of manually specifying them for all settings
-     * Can be null for specific settings, that aren't meant to be directly toggled or changed in Compose
-     */
-    public abstract val title: Int?
+	/**
+	 * The title of this setting.
+	 * It's the ressource ID that links to an i18n string, that android resolves depending on the app language
+	 * Used in Compose to automatically infer title via the property instead of manually specifying them for all settings
+	 * Can be null for specific settings, that aren't meant to be directly toggled or changed in Compose
+	 */
+	public abstract val title: Int?
 
-    /**
-     * Same as [title] but it's the description
-     */
-    public abstract val description: Int?
+	/**
+	 * Same as [title] but it's the description
+	 */
+	public abstract val description: Int?
 
-    /**
-     * The icon of this setting.
-     * It's the ressource ID that links to an i18n ressource value.
-     * Used in Compose to automatically infer title via the property instead of manually specifying them for all settings
-     * Can be null for specific settings, that aren't meant to be directly toggled or changed in Compose
-     */
-    public abstract val icon: Int?
+	/**
+	 * The icon of this setting.
+	 * It's the ressource ID that links to an i18n ressource value.
+	 * Used in Compose to automatically infer title via the property instead of manually specifying them for all settings
+	 * Can be null for specific settings, that aren't meant to be directly toggled or changed in Compose
+	 */
+	public abstract val icon: Int?
 
-    /**
-     * Fallback value when no persisted value exists.
-     * Initial value that takes the object when first initialized
-     * @see cachedValue
-     */
-    public abstract val default: TYPED
+	/**
+	 * Fallback value when no persisted value exists.
+	 * Initial value that takes the object when first initialized
+	 * @see cachedValue
+	 */
+	public abstract val default: TYPED
 
-    /**
-     * DataStore key used for storage/retrieval.
-     */
-    protected abstract val preferenceKey: Preferences.Key<ENCODED>
+	/**
+	 * DataStore key used for storage/retrieval.
+	 */
+	protected abstract val preferenceKey: Preferences.Key<ENCODED>
 
-    /**
-     * Converts [TYPED] → [ENCODED]`?` for DataStore persistence (returns `null` to remove setting).
-     */
-    public abstract fun encode(value: TYPED): ENCODED?
+	/**
+	 * Converts [TYPED] → [ENCODED]`?` for DataStore persistence (returns `null` to remove setting).
+	 */
+	public abstract fun encode(value: TYPED): ENCODED?
 
-    /**
-     * Converts raw DataStore value → [TYPED].
-     */
-    public abstract fun decode(raw: Any?): TYPED
+	/**
+	 * Converts raw DataStore value → [TYPED].
+	 */
+	public abstract fun decode(raw: Any?): TYPED
 
-    /**
-     * Optional callback invoked after successful set/reset operations.
-     */
-    public abstract var onChanged: (() -> Unit)?
+	/**
+	 * Optional callback invoked after successful set/reset operations.
+	 */
+	public abstract var onChanged: (() -> Unit)?
 
-    /**
-     * Whether if this setting should be added to the backup or not.
-     * It is always added when the parameter `forceAllKeys` is `true` during an export
-     * @see SettingsStore
-     */
-    public abstract val backupable: Boolean
+	/**
+	 * Whether if this setting should be added to the backup or not.
+	 * It is always added when the parameter `forceAllKeys` is `true` during an export
+	 * @see SettingsStore
+	 */
+	public abstract val backupable: Boolean
 
-    /**
-     * Private cache to avoid fetching value from the Datastore every time
-     * The cache initializes to the [default] provided value, and should be **loaded** when someone subscribe to the [flow], or [get] the value
-     *
-     * Initialized **lazily** because it caused crashes when tried to be accessed in early initialization time. Using the lazy shouldn't cost much and allow the parameter ([default]) to be loaded before the [MutableStateFlow] initializes
-     */
-    private val cachedValue: MutableStateFlow<TYPED> by lazy {
-        MutableStateFlow(default)
-    }
+	/**
+	 * Private cache to avoid fetching value from the Datastore every time
+	 * The cache initializes to the [default] provided value, and should be **loaded** when someone subscribe to the [flow], or [get] the value
+	 *
+	 * Initialized **lazily** because it caused crashes when tried to be accessed in early initialization time. Using the lazy shouldn't cost much and allow the parameter ([default]) to be loaded before the [MutableStateFlow] initializes
+	 */
+	private val cachedValue: MutableStateFlow<TYPED> by lazy {
+		MutableStateFlow(default)
+	}
 
-    private val mutex = Mutex()
+	private val mutex = Mutex()
 
-    /**
-     * Internal value to track whether the value has been loaded from the datastore or not.
-     */
-    private var isInitialized = AtomicBoolean(false)
+	/**
+	 * Internal value to track whether the value has been loaded from the datastore or not.
+	 */
+	private var isInitialized = AtomicBoolean(false)
 
-    /**
-     * Internally loads the value from the datastore if not already
-     *
-     * @return [TYPED] value decoded from the Datastore
-     */
-    private suspend fun loadValue(ctx: Context): TYPED {
-        mutex.withLock {
-            val raw: ENCODED? = withContext(Dispatchers.IO) {
-                ctx
-                    .dataStore
-                    .data
-                    .first()[preferenceKey]
-            }
+	/**
+	 * Internally loads the value from the datastore if not already
+	 *
+	 * @return [TYPED] value decoded from the Datastore
+	 */
+	private suspend fun loadValue(ctx: Context): TYPED {
+		mutex.withLock {
+			val raw: ENCODED? = withContext(Dispatchers.IO) {
+				ctx
+					.dataStore
+					.data
+					.first()[preferenceKey]
+			}
 
-            val decoded: TYPED = raw?.let {
-                try {
-                    decode(it)
-                } catch (e: Exception) {
-                    logE(BACKUP_TAG, e) { "FAILED decoding setting: $key" }
-                    null
-                }
-            } ?: default
+			val decoded: TYPED = raw?.let {
+				try {
+					decode(it)
+				} catch (e: Exception) {
+					logE(BACKUP_TAG, e) { "FAILED decoding setting: $key" }
+					null
+				}
+			} ?: default
 
-            cachedValue.value = decoded
+			cachedValue.value = decoded
 
-            isInitialized.store(true)
-            return cachedValue.value
-        }
-    }
+			isInitialized.store(true)
+			return cachedValue.value
+		}
+	}
 
-    /**
-     * Sets the value of this setting using a type-erased input.
-     *
-     * This method exists to support bulk operations (such as restore, import,
-     * or map-based updates) where the concrete generic type of the setting is
-     * not known at compile time.
-     *
-     * The provided [value] is first cast to the raw representation type [ENCODED],
-     * then converted into the setting's strongly-typed value using [decode],
-     * and finally persisted via [set].
-     *
-     * @param ctx Android context used to access the underlying data store.
-     * @param value The raw, type-erased value to apply to this setting.
-     */
-    public suspend fun setAny(ctx: Context, value: Any?) {
-        @Suppress("UNCHECKED_CAST")
-        val value = value as? TYPED
-        if (value != null) {
-            set(ctx, value)
-        } else {
-            reset(ctx)
-        }
-    }
+	/**
+	 * Sets the value of this setting using a type-erased input.
+	 *
+	 * This method exists to support bulk operations (such as restore, import,
+	 * or map-based updates) where the concrete generic type of the setting is
+	 * not known at compile time.
+	 *
+	 * The provided [value] is first cast to the raw representation type [ENCODED],
+	 * then converted into the setting's strongly-typed value using [decode],
+	 * and finally persisted via [set].
+	 *
+	 * @param ctx Android context used to access the underlying data store.
+	 * @param value The raw, type-erased value to apply to this setting.
+	 */
+	public suspend fun setAny(ctx: Context, value: Any?) {
+		@Suppress("UNCHECKED_CAST")
+		val value = value as? TYPED
+		if (value != null) {
+			set(ctx, value)
+		} else {
+			reset(ctx)
+		}
+	}
 
-    /**
-     * Get the value one shot for logic, no flow
-     * Returns null if the value is not defined or uses the [default] value
-     *
-     * @return [TYPED]? decoded nullable value
-     */
-    public suspend fun getOrNull(ctx: Context): TYPED? {
-        val value = get(ctx)
-        return if (value != default) value else null
-    }
+	/**
+	 * Get the value one shot for logic, no flow
+	 * Returns null if the value is not defined or uses the [default] value
+	 *
+	 * @return [TYPED]? decoded nullable value
+	 */
+	public suspend fun getOrNull(ctx: Context): TYPED? {
+		val value = get(ctx)
+		return if (value != default) value else null
+	}
 
-    /**
-     * Get the value one shot for logic, no flow
-     *
-     * @param ctx
-     * @return decoded value of settings type [TYPED]
-     */
-    public suspend fun get(ctx: Context): TYPED = if (!isInitialized.load()) {
-        loadValue(ctx)
-    } else {
-        cachedValue.value
-    }
+	/**
+	 * Get the value one shot for logic, no flow
+	 *
+	 * @param ctx
+	 * @return decoded value of settings type [TYPED]
+	 */
+	public suspend fun get(ctx: Context): TYPED = if (!isInitialized.load()) {
+		loadValue(ctx)
+	} else {
+		cachedValue.value
+	}
 
-    /**
-     * Returns the value encoded for the backup
-     *
-     * @param ctx
-     * @return decoded value of settings type [TYPED]
-     */
-    public suspend fun getEncoded(ctx: Context): ENCODED? =
-        get(ctx)?.let {
-            try {
-                encode(it)
-            } catch (e: Exception) {
-                logE(BACKUP_TAG, e) { "FAILED encoding setting: $key" }
-                null
-            }
-        }
+	/**
+	 * Returns the value encoded for the backup
+	 *
+	 * @param ctx
+	 * @return decoded value of settings type [TYPED]
+	 */
+	public suspend fun getEncoded(ctx: Context): ENCODED? =
+		get(ctx)?.let {
+			try {
+				encode(it)
+			} catch (e: Exception) {
+				logE(BACKUP_TAG, e) { "FAILED encoding setting: $key" }
+				null
+			}
+		}
 
-    /**
-     * Outputs a flow of the value, for compose
-     *
-     * @return [Flow] of the settings type [TYPED]
-     */
-    public fun flow(ctx: Context): Flow<TYPED> =
-        cachedValue
-            .asStateFlow()
-            .onStart {
-                if (!isInitialized.load()) {
-                    loadValue(ctx)
-                }
-            }
+	/**
+	 * Outputs a flow of the value, for compose
+	 *
+	 * @return [Flow] of the settings type [TYPED]
+	 */
+	public fun flow(ctx: Context): Flow<TYPED> =
+		cachedValue
+			.asStateFlow()
+			.onStart {
+				if (!isInitialized.load()) {
+					loadValue(ctx)
+				}
+			}
 
-    /**
-     * Outputs a [StateFlow] of the value, used in ViewModels
-     *
-     * If no collectors of this flow are present, and you only use the view models to get the .value, you need to use [started] with [SharingStarted.Eagerly].
-     * Otherwise, it would not load and update the value
-     *
-     * @return [StateFlow] of the settings type [TYPED]
-     */
-    public fun stateFlow(ctx: Context, scope: CoroutineScope, started: SharingStarted = SharingStarted.Eagerly): StateFlow<TYPED> =
-        cachedValue
-            .onStart {
-                if (!isInitialized.load()) {
-                    loadValue(ctx)
-                }
-            }.stateIn(
-                scope = scope,
-                started = started,
-                initialValue = default
-            )
+	/**
+	 * Outputs a [StateFlow] of the value, used in ViewModels
+	 *
+	 * If no collectors of this flow are present, and you only use the view models to get the .value, you need to use [started] with [SharingStarted.Eagerly].
+	 * Otherwise, it would not load and update the value
+	 *
+	 * @return [StateFlow] of the settings type [TYPED]
+	 */
+	public fun stateFlow(ctx: Context, scope: CoroutineScope, started: SharingStarted = SharingStarted.Eagerly): StateFlow<TYPED> =
+		cachedValue
+			.onStart {
+				if (!isInitialized.load()) {
+					loadValue(ctx)
+				}
+			}.stateIn(
+				scope = scope,
+				started = started,
+				initialValue = default
+			)
 
-    /**
-     * Saves the value in the datastore for persistence
-     *
-     * @param ctx
-     * @param value
-     */
-    public suspend fun set(ctx: Context, value: TYPED?) {
-        try {
-            if (value == null) {
-                reset(ctx)
-                return
-            }
+	/**
+	 * Saves the value in the datastore for persistence
+	 *
+	 * @param ctx
+	 * @param value
+	 */
+	public suspend fun set(ctx: Context, value: TYPED?) {
+		try {
+			if (value == null) {
+				reset(ctx)
+				return
+			}
 
-            if (value == cachedValue.value) return
+			if (value == cachedValue.value) return
 
-            val encoded: ENCODED? = encode(value)
-            if (encoded == null) {
-                logW(SETTINGS_TAG) { "FAILED to encode value for key: $key, resetting it" }
-                reset(ctx)
-                return
-            }
+			val encoded: ENCODED? = encode(value)
+			if (encoded == null) {
+				logW(SETTINGS_TAG) { "FAILED to encode value for key: $key, resetting it" }
+				reset(ctx)
+				return
+			}
 
-            cachedValue.value = value
-            withContext(Dispatchers.IO) {
-                ctx.dataStore.edit {
-                    it[preferenceKey] = encoded
-                }
-            }
+			cachedValue.value = value
+			withContext(Dispatchers.IO) {
+				ctx.dataStore.edit {
+					it[preferenceKey] = encoded
+				}
+			}
 
-            onChanged?.invoke()
-        } catch (e: Exception) {
-            logE(BACKUP_TAG, e) { "FAILED persisting setting for key: $key\nasked value: $value" }
-        }
-    }
+			onChanged?.invoke()
+		} catch (e: Exception) {
+			logE(BACKUP_TAG, e) { "FAILED persisting setting for key: $key\nasked value: $value" }
+		}
+	}
 
-    /**
-     * Removes the value of the [preferenceKey] from the datastore and sets its cached value to [default]
-     *
-     * @param ctx
-     */
-    public suspend fun reset(ctx: Context) {
-        try {
-            cachedValue.value = default
-            withContext(Dispatchers.IO) {
-                ctx.dataStore.edit {
-                    it.remove(preferenceKey)
-                }
-            }
+	/**
+	 * Removes the value of the [preferenceKey] from the datastore and sets its cached value to [default]
+	 *
+	 * @param ctx
+	 */
+	public suspend fun reset(ctx: Context) {
+		try {
+			cachedValue.value = default
+			withContext(Dispatchers.IO) {
+				ctx.dataStore.edit {
+					it.remove(preferenceKey)
+				}
+			}
 
-            onChanged?.invoke()
-        } catch (e: Exception) {
-            logE(BACKUP_TAG, e) { "FAILED resetting setting: $key" }
-        }
-    }
+			onChanged?.invoke()
+		} catch (e: Exception) {
+			logE(BACKUP_TAG, e) { "FAILED resetting setting: $key" }
+		}
+	}
 }

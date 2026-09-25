@@ -12,21 +12,21 @@ import io.github.elnix90.core.util.isNotBlankKey
 @Stable
 @ConsistentCopyVisibility
 public data class DpSettingObject internal constructor(
-    override val key: String,
-    override val default: Dp,
-    override val title: Int?,
-    override val description: Int?,
-    override val icon: Int?,
-    override var onChanged: (() -> Unit)?,
-    override val backupable: Boolean,
-    override val settingsStore: SettingsStore<*, *>,
-    val allowedRange: ClosedRange<Dp>
+	override val key: String,
+	override val default: Dp,
+	override val title: Int?,
+	override val description: Int?,
+	override val icon: Int?,
+	override var onChanged: (() -> Unit)?,
+	override val backupable: Boolean,
+	override val settingsStore: SettingsStore<*, *>,
+	val allowedRange: ClosedRange<Dp>
 ) : SettingObject<Dp, Int>() {
-    override val preferenceKey: Preferences.Key<Int> = intPreferencesKey(preferenceKeyName)
+	override val preferenceKey: Preferences.Key<Int> = intPreferencesKey(preferenceKeyName)
 
-    override fun encode(value: Dp): Int = value.value.toInt()
+	override fun encode(value: Dp): Int = value.value.toInt()
 
-    override fun decode(raw: Any?): Dp = getDpStrict(raw, default).coerceIn(allowedRange)
+	override fun decode(raw: Any?): Dp = getDpStrict(raw, default).coerceIn(allowedRange)
 }
 
 /**
@@ -47,32 +47,32 @@ public data class DpSettingObject internal constructor(
  * @return A [DpSettingObject] configured with the provided parameters.
  */
 public fun MapSettingsStore.dp(
-    default: Dp,
-    title: Int? = null,
-    description: Int? = null,
-    icon: Int? = null,
-    allowedRange: ClosedRange<Dp>,
-    key: String = "",
-    onChanged: (() -> Unit)? = null,
-    backupable: Boolean = true
+	default: Dp,
+	title: Int? = null,
+	description: Int? = null,
+	icon: Int? = null,
+	allowedRange: ClosedRange<Dp>,
+	key: String = "",
+	onChanged: (() -> Unit)? = null,
+	backupable: Boolean = true
 ): DpSettingObject = DpSettingObject(
-    key = key.isNotBlankKey,
-    title = title,
-    description = description,
-    icon = icon,
-    default = default,
-    allowedRange = allowedRange,
-    onChanged = onChanged,
-    backupable = backupable,
-    settingsStore = this
+	key = key.isNotBlankKey,
+	title = title,
+	description = description,
+	icon = icon,
+	default = default,
+	allowedRange = allowedRange,
+	onChanged = onChanged,
+	backupable = backupable,
+	settingsStore = this
 )
 
 private fun getDpStrict(
-    raw: Any?,
-    def: Dp
+	raw: Any?,
+	def: Dp
 ): Dp = when (raw) {
-    is Int -> raw.dp
-    is Number -> raw.toInt().dp
-    is String -> raw.toIntOrNull()?.dp
-    else -> null
+	is Int -> raw.dp
+	is Number -> raw.toInt().dp
+	is String -> raw.toIntOrNull()?.dp
+	else -> null
 } ?: def

@@ -10,20 +10,20 @@ import io.github.elnix90.core.util.isNotBlankKey
 @Stable
 @ConsistentCopyVisibility
 public data class BooleanSettingObject internal constructor(
-    override val key: String,
-    override val default: Boolean,
-    override val title: Int?,
-    override val icon: Int?,
-    override val description: Int?,
-    override var onChanged: (() -> Unit)?,
-    override val backupable: Boolean,
-    override val settingsStore: SettingsStore<*, *>
+	override val key: String,
+	override val default: Boolean,
+	override val title: Int?,
+	override val icon: Int?,
+	override val description: Int?,
+	override var onChanged: (() -> Unit)?,
+	override val backupable: Boolean,
+	override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<Boolean, Boolean>() {
-    override val preferenceKey: Preferences.Key<Boolean> = booleanPreferencesKey(preferenceKeyName)
+	override val preferenceKey: Preferences.Key<Boolean> = booleanPreferencesKey(preferenceKeyName)
 
-    override fun encode(value: Boolean): Boolean = value
+	override fun encode(value: Boolean): Boolean = value
 
-    override fun decode(raw: Any?): Boolean = getBooleanStrict(raw, default)
+	override fun decode(raw: Any?): Boolean = getBooleanStrict(raw, default)
 }
 
 /**
@@ -43,38 +43,38 @@ public data class BooleanSettingObject internal constructor(
  * @return A [BooleanSettingObject] configured with the provided parameters.
  */
 public fun MapSettingsStore.boolean(
-    default: Boolean,
-    title: Int? = null,
-    description: Int? = null,
-    icon: Int? = null,
-    key: String = "",
-    onChanged: (() -> Unit)? = null,
-    backupable: Boolean = true
+	default: Boolean,
+	title: Int? = null,
+	description: Int? = null,
+	icon: Int? = null,
+	key: String = "",
+	onChanged: (() -> Unit)? = null,
+	backupable: Boolean = true
 ): BooleanSettingObject = BooleanSettingObject(
-    key = key.isNotBlankKey,
-    title = title,
-    description = description,
-    icon = icon,
-    default = default,
-    onChanged = onChanged,
-    backupable = backupable,
-    settingsStore = this
+	key = key.isNotBlankKey,
+	title = title,
+	description = description,
+	icon = icon,
+	default = default,
+	onChanged = onChanged,
+	backupable = backupable,
+	settingsStore = this
 )
 
 @Suppress("NOTHING_TO_INLINE")
 private inline fun getBooleanStrict(
-    raw: Any?,
-    def: Boolean
+	raw: Any?,
+	def: Boolean
 ): Boolean = when (raw) {
-    is Boolean -> raw
+	is Boolean -> raw
 
-    is Number -> raw.toInt() != 0
+	is Number -> raw.toInt() != 0
 
-    is String -> when (raw.trim().lowercase()) {
-        "true", "1", "yes", "y", "on" -> true
-        "false", "0", "no", "n", "off" -> false
-        else -> null
-    }
+	is String -> when (raw.trim().lowercase()) {
+		"true", "1", "yes", "y", "on" -> true
+		"false", "0", "no", "n", "off" -> false
+		else -> null
+	}
 
-    else -> null
+	else -> null
 } ?: def

@@ -74,76 +74,76 @@ import org.jetbrains.kotlin.name.Name
  * compiler-generated member during later compilation stages.
  */
 internal class SettingsStoreFirExtension(
-    session: FirSession
+	session: FirSession
 ) : FirDeclarationGenerationExtension(session) {
-    /**
-     * Returns true for each class it visits, because I found it easier to check whether the object/class has an annotation during the second phase
-     */
-    @OptIn(DirectDeclarationsAccess::class, SymbolInternals::class)
-    override fun getCallableNamesForClass(
-        classSymbol: FirClassSymbol<*>,
-        context: MemberGenerationContext
-    ): Set<Name> = setOf(Name.identifier("ALL"))
+	/**
+	 * Returns true for each class it visits, because I found it easier to check whether the object/class has an annotation during the second phase
+	 */
+	@OptIn(DirectDeclarationsAccess::class, SymbolInternals::class)
+	override fun getCallableNamesForClass(
+		classSymbol: FirClassSymbol<*>,
+		context: MemberGenerationContext
+	): Set<Name> = setOf(Name.identifier("ALL"))
 
-    /**
-     * Checks whether the class it visits has the `@SettingsStore` annotation
-     * If this is the case:
-     *  - adds the overridden value `ALL` to the settings store
-     *  - adds the overridden value `name` to the setting store
-     */
-    @OptIn(SymbolInternals::class, DirectDeclarationsAccess::class)
-    override fun generateProperties(
-        callableId: CallableId,
-        context: MemberGenerationContext?
-    ): List<FirPropertySymbol> {
-        if (context == null) return emptyList()
-        val owner = context.owner
+	/**
+	 * Checks whether the class it visits has the `@SettingsStore` annotation
+	 * If this is the case:
+	 *  - adds the overridden value `ALL` to the settings store
+	 *  - adds the overridden value `name` to the setting store
+	 */
+	@OptIn(SymbolInternals::class, DirectDeclarationsAccess::class)
+	override fun generateProperties(
+		callableId: CallableId,
+		context: MemberGenerationContext?
+	): List<FirPropertySymbol> {
+		if (context == null) return emptyList()
+		val owner = context.owner
 
-        if (!owner.hasAnnotation(settingsStoreAnnotationClassId, session)) {
-            return emptyList()
-        }
+		if (!owner.hasAnnotation(settingsStoreAnnotationClassId, session)) {
+			return emptyList()
+		}
 
-        if (!(owner.isSettingsStore(session))) {
-            error("Only SettingsStores can be marked as @SettingsStore")
-        }
+		if (!(owner.isSettingsStore(session))) {
+			error("Only SettingsStores can be marked as @SettingsStore")
+		}
 
-        if (!owner.isMapSettingsStore(session)) {
-            return emptyList()
-        }
+		if (!owner.isMapSettingsStore(session)) {
+			return emptyList()
+		}
 
-        val settingObjectSymbol =
-            session.symbolProvider
-                .getClassLikeSymbolByClassId(settingObjectClassId)
-                ?: error("SettingObject not found")
+		val settingObjectSymbol =
+			session.symbolProvider
+				.getClassLikeSymbolByClassId(settingObjectClassId)
+				?: error("SettingObject not found")
 
-        @OptIn(SymbolInternals::class)
-        val settingObjectType: ConeKotlinType =
-            settingObjectSymbol.toLookupTag().constructClassType(
-                arrayOf(
-                    ConeStarProjection,
-                    ConeStarProjection
-                ),
-                false
-            )
+		@OptIn(SymbolInternals::class)
+		val settingObjectType: ConeKotlinType =
+			settingObjectSymbol.toLookupTag().constructClassType(
+				arrayOf(
+					ConeStarProjection,
+					ConeStarProjection
+				),
+				false
+			)
 
-        val setSymbol: FirClassLikeSymbol<*> =
-            session.symbolProvider.getClassLikeSymbolByClassId(
-                StandardNames.FqNames.set
-                    .let(ClassId::topLevel)
-            ) ?: error("Set not found")
+		val setSymbol: FirClassLikeSymbol<*> =
+			session.symbolProvider.getClassLikeSymbolByClassId(
+				StandardNames.FqNames.set
+					.let(ClassId::topLevel)
+			) ?: error("Set not found")
 
-        val setType: ConeClassLikeType = setSymbol.toLookupTag().constructClassType(arrayOf(settingObjectType))
+		val setType: ConeClassLikeType = setSymbol.toLookupTag().constructClassType(arrayOf(settingObjectType))
 
-        val allProperty: FirProperty = createMemberProperty(
-            owner = owner,
-            key = Key,
-            name = Name.identifier("ALL"),
-            returnType = setType,
-            isVal = true
-        )
+		val allProperty: FirProperty = createMemberProperty(
+			owner = owner,
+			key = Key,
+			name = Name.identifier("ALL"),
+			returnType = setType,
+			isVal = true
+		)
 
-        return listOf(allProperty.symbol)
-    }
+		return listOf(allProperty.symbol)
+	}
 
-    object Key : GeneratedDeclarationKey()
+	object Key : GeneratedDeclarationKey()
 }

@@ -10,21 +10,21 @@ import io.github.elnix90.core.util.isNotBlankKey
 @Stable
 @ConsistentCopyVisibility
 public data class LongSettingObject internal constructor(
-    override val key: String,
-    override val default: Long,
-    override val title: Int?,
-    override val description: Int?,
-    override val icon: Int?,
-    override var onChanged: (() -> Unit)?,
-    override val backupable: Boolean,
-    override val settingsStore: SettingsStore<*, *>,
-    val allowedRange: ClosedRange<Long>
+	override val key: String,
+	override val default: Long,
+	override val title: Int?,
+	override val description: Int?,
+	override val icon: Int?,
+	override var onChanged: (() -> Unit)?,
+	override val backupable: Boolean,
+	override val settingsStore: SettingsStore<*, *>,
+	val allowedRange: ClosedRange<Long>
 ) : SettingObject<Long, Long>() {
-    override val preferenceKey: Preferences.Key<Long> = longPreferencesKey(preferenceKeyName)
+	override val preferenceKey: Preferences.Key<Long> = longPreferencesKey(preferenceKeyName)
 
-    override fun encode(value: Long): Long = value
+	override fun encode(value: Long): Long = value
 
-    override fun decode(raw: Any?): Long = getLongStrict(raw, default).coerceIn(allowedRange)
+	override fun decode(raw: Any?): Long = getLongStrict(raw, default).coerceIn(allowedRange)
 }
 
 /**
@@ -45,32 +45,32 @@ public data class LongSettingObject internal constructor(
  * @return A [LongSettingObject] configured with the provided parameters.
  */
 public fun MapSettingsStore.long(
-    default: Long,
-    allowedRange: ClosedRange<Long>,
-    title: Int? = null,
-    description: Int? = null,
-    icon: Int? = null,
-    key: String = "",
-    onChanged: (() -> Unit)? = null,
-    backupable: Boolean = true
+	default: Long,
+	allowedRange: ClosedRange<Long>,
+	title: Int? = null,
+	description: Int? = null,
+	icon: Int? = null,
+	key: String = "",
+	onChanged: (() -> Unit)? = null,
+	backupable: Boolean = true
 ): LongSettingObject = LongSettingObject(
-    key = key.isNotBlankKey,
-    title = title,
-    description = description,
-    icon = icon,
-    default = default,
-    allowedRange = allowedRange,
-    onChanged = onChanged,
-    backupable = backupable,
-    settingsStore = this
+	key = key.isNotBlankKey,
+	title = title,
+	description = description,
+	icon = icon,
+	default = default,
+	allowedRange = allowedRange,
+	onChanged = onChanged,
+	backupable = backupable,
+	settingsStore = this
 )
 
 private fun getLongStrict(
-    raw: Any?,
-    def: Long
+	raw: Any?,
+	def: Long
 ): Long = when (raw) {
-    is Long -> raw
-    is Number -> raw.toLong()
-    is String -> raw.toLongOrNull()
-    else -> null
+	is Long -> raw
+	is Number -> raw.toLong()
+	is String -> raw.toLongOrNull()
+	else -> null
 } ?: def

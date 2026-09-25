@@ -10,34 +10,34 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 
 @Suppress("unused") // Used via reflection.
 class SettingsGradlePlugin : KotlinCompilerPluginSupportPlugin {
-    override fun apply(target: Project) {
-        target.extensions.create("settingsPlugin", SettingsGradleExtension::class.java)
-    }
+	override fun apply(target: Project) {
+		target.extensions.create("settingsPlugin", SettingsGradleExtension::class.java)
+	}
 
-    override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean = true
+	override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean = true
 
-    override fun getCompilerPluginId(): String = BuildConfig.KOTLIN_PLUGIN_ID
+	override fun getCompilerPluginId(): String = BuildConfig.KOTLIN_PLUGIN_ID
 
-    override fun getPluginArtifact(): SubpluginArtifact = SubpluginArtifact(
-        groupId = BuildConfig.KOTLIN_PLUGIN_GROUP,
-        artifactId = BuildConfig.KOTLIN_PLUGIN_NAME,
-        version = BuildConfig.KOTLIN_PLUGIN_VERSION
-    )
+	override fun getPluginArtifact(): SubpluginArtifact = SubpluginArtifact(
+		groupId = BuildConfig.KOTLIN_PLUGIN_GROUP,
+		artifactId = BuildConfig.KOTLIN_PLUGIN_NAME,
+		version = BuildConfig.KOTLIN_PLUGIN_VERSION
+	)
 
-    override fun applyToCompilation(
-        kotlinCompilation: KotlinCompilation<*>
-    ): Provider<List<SubpluginOption>> {
-        val project = kotlinCompilation.target.project
+	override fun applyToCompilation(
+		kotlinCompilation: KotlinCompilation<*>
+	): Provider<List<SubpluginOption>> {
+		val project = kotlinCompilation.target.project
 
-        kotlinCompilation.dependencies { implementation(ANNOTATIONS_LIBRARY_COORDINATES) }
-        if (kotlinCompilation.implementationConfigurationName == "metadataCompilationImplementation") {
-            project.dependencies.add("commonMainImplementation", ANNOTATIONS_LIBRARY_COORDINATES)
-        }
+		kotlinCompilation.dependencies { implementation(ANNOTATIONS_LIBRARY_COORDINATES) }
+		if (kotlinCompilation.implementationConfigurationName == "metadataCompilationImplementation") {
+			project.dependencies.add("commonMainImplementation", ANNOTATIONS_LIBRARY_COORDINATES)
+		}
 
-        return project.provider {
-            val extension = project.extensions.getByType(SettingsGradleExtension::class.java)
+		return project.provider {
+			val extension = project.extensions.getByType(SettingsGradleExtension::class.java)
 
-            emptyList()
-        }
-    }
+			emptyList()
+		}
+	}
 }

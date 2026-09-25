@@ -28,63 +28,63 @@ import org.json.JSONObject
  * - trades fine-grained updates for easier serialization
  */
 public abstract class JsonObjectSettingsStore(
-    override val backupable: Boolean = true
+	override val backupable: Boolean = true
 ) : SettingsStore<JSONObject?, JSONObject>(backupable) {
-    /**
-     * Underlying setting that stores the JSON payload as a raw string.
-     */
-    public val jsonSetting: StringSettingObject = StringSettingObject(
-        key = name,
-        default = "",
-        title = null,
-        description = null,
-        icon = null,
-        onChanged = null,
-        backupable = true,
-        settingsStore = this
-    )
+	/**
+	 * Underlying setting that stores the JSON payload as a raw string.
+	 */
+	public val jsonSetting: StringSettingObject = StringSettingObject(
+		key = name,
+		default = "",
+		title = null,
+		description = null,
+		icon = null,
+		onChanged = null,
+		backupable = true,
+		settingsStore = this
+	)
 
-    @Suppress("ktlint:standard:property-naming")
-    final override val ALL: Set<SettingObject<*, *>> = setOf(jsonSetting)
+	@Suppress("ktlint:standard:property-naming")
+	final override val ALL: Set<SettingObject<*, *>> = setOf(jsonSetting)
 
-    /**
-     * Reads the JSON string from DataStore and parses it into a [JSONObject].
-     */
-    final override suspend fun getAll(ctx: Context, forceAllKeys: Boolean): JSONObject? {
-        // Skips if default value provided (no changes made), keep the backup lighter
-        if (!jsonSetting.isNotNullOrDefault(ctx)) return null
+	/**
+	 * Reads the JSON string from DataStore and parses it into a [JSONObject].
+	 */
+	final override suspend fun getAll(ctx: Context, forceAllKeys: Boolean): JSONObject? {
+		// Skips if default value provided (no changes made), keep the backup lighter
+		if (!jsonSetting.isNotNullOrDefault(ctx)) return null
 
-        val raw = jsonSetting.getEncoded(ctx)?.trim() ?: return null
+		val raw = jsonSetting.getEncoded(ctx)?.trim() ?: return null
 
-        return try {
-            if (raw.isEmpty()) null else JSONObject(raw)
-        } catch (e: JSONException) {
-            logE(BACKUP_TAG, e) { "Error while creating json object of backup" }
-            null
-        }
-    }
+		return try {
+			if (raw.isEmpty()) null else JSONObject(raw)
+		} catch (e: JSONException) {
+			logE(BACKUP_TAG, e) { "Error while creating json object of backup" }
+			null
+		}
+	}
 
-    /**
-     * Serializes and writes the provided [JSONObject] into DataStore.
-     */
-    final override suspend fun setAll(ctx: Context, value: JSONObject?) {
-        jsonSetting.set(ctx, value?.toString())
-    }
+	/**
+	 * Serializes and writes the provided [JSONObject] into DataStore.
+	 */
+	final override suspend fun setAll(ctx: Context, value: JSONObject?) {
+		jsonSetting.set(ctx, value?.toString())
+	}
 
-    /**
-     * Exports the current JSON payload for backup.
-     *
-     * Since the store is already JSON-backed, this is a direct passthrough.
-     */
-    final override suspend fun exportForBackup(ctx: Context, forceAllKeys: Boolean): JSONObject? =
-        getAll(ctx, forceAllKeys)
+	/**
+	 * Exports the current JSON payload for backup.
+	 *
+	 * Since the store is already JSON-backed, this is a direct passthrough.
+	 */
+	final override suspend fun exportForBackup(ctx: Context, forceAllKeys: Boolean): JSONObject? =
+		getAll(ctx, forceAllKeys)
 
-    /**
-     * Restores the store from a JSON backup.
-     *
-     * The provided [JSONObject] fully replaces the current stored value.
-     */
-    final override suspend fun importFromBackup(ctx: Context, json: JSONObject?) {
-        setAll(ctx, json)
-    }
+	/**
+	 * Restores the store from a JSON backup.
+	 *
+	 * The provided [JSONObject] fully replaces the current stored value.
+	 */
+	final override suspend fun importFromBackup(ctx: Context, json: JSONObject?) {
+		setAll(ctx, json)
+	}
 }

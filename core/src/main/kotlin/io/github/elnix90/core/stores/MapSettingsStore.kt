@@ -27,63 +27,63 @@ import org.json.JSONObject
  * - safe type coercion during restore via `BaseSettingObject.decode`
  */
 public abstract class MapSettingsStore(
-    override val backupable: Boolean = true
+	override val backupable: Boolean = true
 ) : SettingsStore<Map<String, Any?>, JSONObject>(backupable) {
-    /**
-     * Reads all settings from the store and returns them as a map.
-     * When [forceAllKeys] **isn't** enabled, skips the value if the decoded is null
-     */
-    final override suspend fun getAll(ctx: Context, forceAllKeys: Boolean): Map<String, Any> =
-        buildMap {
-            ALL.forEach { setting ->
-                if (forceAllKeys) {
-                    putIfNotNull(ctx, setting)
-                } else if (setting.backupable) {
-                    putIfNonDefault(ctx, setting)
-                }
-            }
-        }
+	/**
+	 * Reads all settings from the store and returns them as a map.
+	 * When [forceAllKeys] **isn't** enabled, skips the value if the decoded is null
+	 */
+	final override suspend fun getAll(ctx: Context, forceAllKeys: Boolean): Map<String, Any> =
+		buildMap {
+			ALL.forEach { setting ->
+				if (forceAllKeys) {
+					putIfNotNull(ctx, setting)
+				} else if (setting.backupable) {
+					putIfNonDefault(ctx, setting)
+				}
+			}
+		}
 
-    /**
-     * Writes all provided values to DataStore.
-     *
-     * Each value is decoded individually using the corresponding
-     * `BaseSettingObject.decode` implementation before being persisted.
-     *
-     * Unknown or missing keys are ignored.
-     */
-    final override suspend fun setAll(ctx: Context, value: Map<String, Any?>) {
-        ALL.forEach { setting ->
-            setting.setAny(ctx, setting.decode(value[setting.key]))
-        }
-    }
+	/**
+	 * Writes all provided values to DataStore.
+	 *
+	 * Each value is decoded individually using the corresponding
+	 * `BaseSettingObject.decode` implementation before being persisted.
+	 *
+	 * Unknown or missing keys are ignored.
+	 */
+	final override suspend fun setAll(ctx: Context, value: Map<String, Any?>) {
+		ALL.forEach { setting ->
+			setting.setAny(ctx, setting.decode(value[setting.key]))
+		}
+	}
 
-    /**
-     * Exports all settings into a single [JSONObject] for backup purposes.
-     */
-    final override suspend fun exportForBackup(ctx: Context, forceAllKeys: Boolean): JSONObject? {
-        val map = getAll(ctx, forceAllKeys)
-        return if (map.isNotEmpty()) {
-            JSONObject(map)
-        } else {
-            null
-        }
-    }
+	/**
+	 * Exports all settings into a single [JSONObject] for backup purposes.
+	 */
+	final override suspend fun exportForBackup(ctx: Context, forceAllKeys: Boolean): JSONObject? {
+		val map = getAll(ctx, forceAllKeys)
+		return if (map.isNotEmpty()) {
+			JSONObject(map)
+		} else {
+			null
+		}
+	}
 
-    /**
-     * Restores settings from a [JSONObject] backup.
-     *
-     * Only keys present in [ALL] are applied; unknown keys are safely ignored.
-     * Each value is decoded and validated by its corresponding `BaseSettingObject`.
-     */
-    final override suspend fun importFromBackup(ctx: Context, json: JSONObject?) {
-        json?.keys()?.forEach { key ->
-            ALL.find { it.key == key }?.let { setting ->
-                val raw = json.opt(key)
-                val typedValue = setting.decode(raw)
+	/**
+	 * Restores settings from a [JSONObject] backup.
+	 *
+	 * Only keys present in [ALL] are applied; unknown keys are safely ignored.
+	 * Each value is decoded and validated by its corresponding `BaseSettingObject`.
+	 */
+	final override suspend fun importFromBackup(ctx: Context, json: JSONObject?) {
+		json?.keys()?.forEach { key ->
+			ALL.find { it.key == key }?.let { setting ->
+				val raw = json.opt(key)
+				val typedValue = setting.decode(raw)
 
-                setting.setAny(ctx, typedValue)
-            }
-        }
-    }
+				setting.setAny(ctx, typedValue)
+			}
+		}
+	}
 }

@@ -11,21 +11,21 @@ import io.github.elnix90.logging.logE
 
 @Stable
 public data class EnumListSettingObject<E : Enum<E>>(
-    override val key: String,
-    override val default: List<E>,
-    override val title: Int?,
-    override val description: Int?,
-    override val icon: Int?,
-    override var onChanged: (() -> Unit)?,
-    override val backupable: Boolean,
-    override val settingsStore: SettingsStore<*, *>,
-    val enumClass: Class<E>
+	override val key: String,
+	override val default: List<E>,
+	override val title: Int?,
+	override val description: Int?,
+	override val icon: Int?,
+	override var onChanged: (() -> Unit)?,
+	override val backupable: Boolean,
+	override val settingsStore: SettingsStore<*, *>,
+	val enumClass: Class<E>
 ) : SettingObject<List<E>, String>() {
-    override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
+	override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
 
-    override fun encode(value: List<E>): String = value.joinToString(",") { it.name }
+	override fun encode(value: List<E>): String = value.joinToString(",") { it.name }
 
-    override fun decode(raw: Any?): List<E> = getEnumListStrict(raw, default, enumClass)
+	override fun decode(raw: Any?): List<E> = getEnumListStrict(raw, default, enumClass)
 }
 
 /**
@@ -45,49 +45,49 @@ public data class EnumListSettingObject<E : Enum<E>>(
  * @return An [EnumListSettingObject] configured with the provided parameters.
  */
 public inline fun <reified E : Enum<E>> MapSettingsStore.enumList(
-    default: List<E>,
-    title: Int? = null,
-    description: Int? = null,
-    icon: Int? = null,
-    key: String = "",
-    noinline onChanged: (() -> Unit)? = null,
-    backupable: Boolean = true
+	default: List<E>,
+	title: Int? = null,
+	description: Int? = null,
+	icon: Int? = null,
+	key: String = "",
+	noinline onChanged: (() -> Unit)? = null,
+	backupable: Boolean = true
 ): EnumListSettingObject<E> = EnumListSettingObject(
-    key = key.isNotBlankKey,
-    title = title,
-    description = description,
-    icon = icon,
-    default = default,
-    enumClass = E::class.java,
-    onChanged = onChanged,
-    backupable = backupable,
-    settingsStore = this
+	key = key.isNotBlankKey,
+	title = title,
+	description = description,
+	icon = icon,
+	default = default,
+	enumClass = E::class.java,
+	onChanged = onChanged,
+	backupable = backupable,
+	settingsStore = this
 )
 
 /**
  * Decodes a list of enum from a string, comma separated statements
  */
 internal fun <E : Enum<E>> getEnumListStrict(
-    raw: Any?,
-    def: List<E>,
-    enumClass: Class<E>
+	raw: Any?,
+	def: List<E>,
+	enumClass: Class<E>
 ): List<E> = when (raw) {
-    is String -> {
-        try {
-            raw
-                .takeIf { it.isNotEmpty() }
-                ?.split(",")
-                ?.mapNotNull { elem ->
-                    enumClass.enumConstants
-                        ?.firstOrNull { it.name == elem.trim() }
-                }.orEmpty()
-        } catch (e: Exception) {
-            logE(SETTINGS_TAG, e) { "Failed to decode enumClass $enumClass object, using default value" }
-            null
-        }
-    }
+	is String -> {
+		try {
+			raw
+				.takeIf { it.isNotEmpty() }
+				?.split(",")
+				?.mapNotNull { elem ->
+					enumClass.enumConstants
+						?.firstOrNull { it.name == elem.trim() }
+				}.orEmpty()
+		} catch (e: Exception) {
+			logE(SETTINGS_TAG, e) { "Failed to decode enumClass $enumClass object, using default value" }
+			null
+		}
+	}
 
-    else -> {
-        null
-    }
+	else -> {
+		null
+	}
 } ?: def

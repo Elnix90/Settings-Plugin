@@ -9,16 +9,16 @@ import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 
 internal fun IrPluginContext.hasAllStoresAnnotation(
-    declaration: IrProperty
+	declaration: IrProperty
 ): Boolean =
-    declaration.hasAnnotation(referenceClass(allStoresAnnotationClassId) ?: return false)
+	declaration.hasAnnotation(referenceClass(allStoresAnnotationClassId) ?: return false)
 
 internal fun IrPluginContext.hasSettingKeyAnnotation(
-    declaration: IrProperty
+	declaration: IrProperty
 ): Boolean =
-    declaration.hasAnnotation(referenceClass(settingKeyAnnotationClassId) ?: return false)
+	declaration.hasAnnotation(referenceClass(settingKeyAnnotationClassId) ?: return false)
 
 internal fun IrPluginContext.hasSettingsStoreAnnotation(
-    declaration: IrClass
+	declaration: IrClass
 ): Boolean =
-    declaration.hasAnnotation(referenceClass(settingsStoreAnnotationClassId) ?: return false)
+	declaration.hasAnnotation(referenceClass(settingsStoreAnnotationClassId) ?: return false)

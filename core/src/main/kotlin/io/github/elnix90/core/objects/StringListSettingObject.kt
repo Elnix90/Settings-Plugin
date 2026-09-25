@@ -10,20 +10,20 @@ import io.github.elnix90.core.util.isNotBlankKey
 @Stable
 @ConsistentCopyVisibility
 public data class StringListSettingObject internal constructor(
-    override val key: String,
-    override val default: List<String>,
-    override val title: Int?,
-    override val description: Int?,
-    override val icon: Int?,
-    override var onChanged: (() -> Unit)?,
-    override val backupable: Boolean,
-    override val settingsStore: SettingsStore<*, *>
+	override val key: String,
+	override val default: List<String>,
+	override val title: Int?,
+	override val description: Int?,
+	override val icon: Int?,
+	override var onChanged: (() -> Unit)?,
+	override val backupable: Boolean,
+	override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<List<String>, String>() {
-    override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
+	override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
 
-    override fun encode(value: List<String>): String = value.joinToString(",")
+	override fun encode(value: List<String>): String = value.joinToString(",")
 
-    override fun decode(raw: Any?): List<String> = getStringListStrict(raw, default)
+	override fun decode(raw: Any?): List<String> = getStringListStrict(raw, default)
 }
 
 /**
@@ -43,38 +43,38 @@ public data class StringListSettingObject internal constructor(
  * @return A [StringListSettingObject] configured with the provided parameters.
  */
 public fun MapSettingsStore.stringList(
-    default: List<String>,
-    title: Int? = null,
-    description: Int? = null,
-    icon: Int? = null,
-    key: String = "",
-    onChanged: (() -> Unit)? = null,
-    backupable: Boolean = true
+	default: List<String>,
+	title: Int? = null,
+	description: Int? = null,
+	icon: Int? = null,
+	key: String = "",
+	onChanged: (() -> Unit)? = null,
+	backupable: Boolean = true
 ): StringListSettingObject = StringListSettingObject(
-    key = key.isNotBlankKey,
-    title = title,
-    description = description,
-    icon = icon,
-    default = default,
-    onChanged = onChanged,
-    backupable = backupable,
-    settingsStore = this
+	key = key.isNotBlankKey,
+	title = title,
+	description = description,
+	icon = icon,
+	default = default,
+	onChanged = onChanged,
+	backupable = backupable,
+	settingsStore = this
 )
 
 private fun getStringListStrict(
-    raw: Any?,
-    def: List<String>
+	raw: Any?,
+	def: List<String>
 ): List<String> {
-    return try {
-        with(raw.toString()) {
-            val clean = trim()
-            if (clean.isBlank()) return emptyList()
-            clean
-                .split(",")
-                .map { it.trim().trim('"').trim('\'') }
-                .filter { it.isNotBlank() }
-        }
-    } catch (_: Exception) {
-        def
-    }
+	return try {
+		with(raw.toString()) {
+			val clean = trim()
+			if (clean.isBlank()) return emptyList()
+			clean
+				.split(",")
+				.map { it.trim().trim('"').trim('\'') }
+				.filter { it.isNotBlank() }
+		}
+	} catch (_: Exception) {
+		def
+	}
 }

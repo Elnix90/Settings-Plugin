@@ -11,20 +11,20 @@ import io.github.elnix90.core.util.toHexWithAlpha
 @Stable
 @ConsistentCopyVisibility
 public data class ColorSettingObject internal constructor(
-    override val key: String,
-    override val default: Color,
-    override val title: Int?,
-    override val icon: Int?,
-    override val description: Int?,
-    override var onChanged: (() -> Unit)?,
-    override val backupable: Boolean,
-    override val settingsStore: SettingsStore<*, *>
+	override val key: String,
+	override val default: Color,
+	override val title: Int?,
+	override val icon: Int?,
+	override val description: Int?,
+	override var onChanged: (() -> Unit)?,
+	override val backupable: Boolean,
+	override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<Color, String>() {
-    override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
+	override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
 
-    override fun encode(value: Color): String = value.toHexWithAlpha(false)
+	override fun encode(value: Color): String = value.toHexWithAlpha(false)
 
-    override fun decode(raw: Any?): Color = getColorStrict(raw, default)
+	override fun decode(raw: Any?): Color = getColorStrict(raw, default)
 }
 
 /**
@@ -44,49 +44,49 @@ public data class ColorSettingObject internal constructor(
  * @return A [ColorSettingObject] configured with the provided parameters.
  */
 public fun MapSettingsStore.color(
-    default: Color,
-    title: Int? = null,
-    description: Int? = null,
-    icon: Int? = null,
-    key: String = "",
-    onChanged: (() -> Unit)? = null,
-    backupable: Boolean = true
+	default: Color,
+	title: Int? = null,
+	description: Int? = null,
+	icon: Int? = null,
+	key: String = "",
+	onChanged: (() -> Unit)? = null,
+	backupable: Boolean = true
 ): ColorSettingObject = ColorSettingObject(
-    key = key.takeIf { it.isNotEmpty() } ?: error("Key must not be empty"),
-    title = title,
-    description = description,
-    icon = icon,
-    default = default,
-    onChanged = onChanged,
-    backupable = backupable,
-    settingsStore = this
+	key = key.takeIf { it.isNotEmpty() } ?: error("Key must not be empty"),
+	title = title,
+	description = description,
+	icon = icon,
+	default = default,
+	onChanged = onChanged,
+	backupable = backupable,
+	settingsStore = this
 )
 
 private fun getColorStrict(
-    raw: Any?,
-    def: Color
+	raw: Any?,
+	def: Color
 ): Color = when (raw) {
-    null -> {
-        null
-    }
+	null -> {
+		null
+	}
 
-    // Old storage format
-    is Int -> {
-        Color(raw)
-    }
+	// Old storage format
+	is Int -> {
+		Color(raw)
+	}
 
-    is Number -> {
-        Color(raw.toInt())
-    }
+	is Number -> {
+		Color(raw.toInt())
+	}
 
-    // New readable format, fallbacks to old format
-    is String -> {
-        raw
-            .toLongOrNull(16)
-            ?.let { Color(it.toInt()) }
-    }
+	// New readable format, fallbacks to old format
+	is String -> {
+		raw
+			.toLongOrNull(16)
+			?.let { Color(it.toInt()) }
+	}
 
-    else -> {
-        null
-    }
+	else -> {
+		null
+	}
 } ?: def

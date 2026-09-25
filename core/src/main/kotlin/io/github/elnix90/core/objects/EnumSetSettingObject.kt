@@ -11,21 +11,21 @@ import io.github.elnix90.logging.logE
 
 @Stable
 public data class EnumSetSettingObject<E : Enum<E>>(
-    override val key: String,
-    override val default: Set<E>,
-    override val title: Int?,
-    override val description: Int?,
-    override val icon: Int?,
-    override var onChanged: (() -> Unit)?,
-    override val backupable: Boolean,
-    override val settingsStore: SettingsStore<*, *>,
-    val enumClass: Class<E>
+	override val key: String,
+	override val default: Set<E>,
+	override val title: Int?,
+	override val description: Int?,
+	override val icon: Int?,
+	override var onChanged: (() -> Unit)?,
+	override val backupable: Boolean,
+	override val settingsStore: SettingsStore<*, *>,
+	val enumClass: Class<E>
 ) : SettingObject<Set<E>, Set<String>>() {
-    override val preferenceKey: Preferences.Key<Set<String>> = stringSetPreferencesKey(preferenceKeyName)
+	override val preferenceKey: Preferences.Key<Set<String>> = stringSetPreferencesKey(preferenceKeyName)
 
-    override fun encode(value: Set<E>): Set<String> = value.mapTo(mutableSetOf()) { it.name }
+	override fun encode(value: Set<E>): Set<String> = value.mapTo(mutableSetOf()) { it.name }
 
-    override fun decode(raw: Any?): Set<E> = getEnumSetStrict(raw, default, enumClass)
+	override fun decode(raw: Any?): Set<E> = getEnumSetStrict(raw, default, enumClass)
 }
 
 /**
@@ -45,47 +45,47 @@ public data class EnumSetSettingObject<E : Enum<E>>(
  * @return An [EnumSetSettingObject] configured with the provided parameters.
  */
 public inline fun <reified E : Enum<E>> MapSettingsStore.enumSet(
-    default: Set<E>,
-    title: Int? = null,
-    description: Int? = null,
-    icon: Int? = null,
-    key: String = "",
-    noinline onChanged: (() -> Unit)? = null,
-    backupable: Boolean = true
+	default: Set<E>,
+	title: Int? = null,
+	description: Int? = null,
+	icon: Int? = null,
+	key: String = "",
+	noinline onChanged: (() -> Unit)? = null,
+	backupable: Boolean = true
 ): EnumSetSettingObject<E> = EnumSetSettingObject(
-    key = key.isNotBlankKey,
-    title = title,
-    description = description,
-    icon = icon,
-    default = default,
-    enumClass = E::class.java,
-    onChanged = onChanged,
-    backupable = backupable,
-    settingsStore = this
+	key = key.isNotBlankKey,
+	title = title,
+	description = description,
+	icon = icon,
+	default = default,
+	enumClass = E::class.java,
+	onChanged = onChanged,
+	backupable = backupable,
+	settingsStore = this
 )
 
 private fun <E : Enum<E>> getEnumSetStrict(
-    raw: Any?,
-    def: Set<E>,
-    enumClass: Class<E>
+	raw: Any?,
+	def: Set<E>,
+	enumClass: Class<E>
 ): Set<E> = when (raw) {
-    is String -> {
-        try {
-            raw
-                .takeIf { it.isNotEmpty() }
-                ?.split(",")
-                ?.mapNotNull { elem ->
-                    enumClass.enumConstants
-                        ?.firstOrNull { it.name == elem.trim() }
-                }.orEmpty()
-                .toSet()
-        } catch (e: Exception) {
-            logE(SETTINGS_TAG, e) { "Failed to decode enumClass $enumClass object, using default value" }
-            null
-        }
-    }
+	is String -> {
+		try {
+			raw
+				.takeIf { it.isNotEmpty() }
+				?.split(",")
+				?.mapNotNull { elem ->
+					enumClass.enumConstants
+						?.firstOrNull { it.name == elem.trim() }
+				}.orEmpty()
+				.toSet()
+		} catch (e: Exception) {
+			logE(SETTINGS_TAG, e) { "Failed to decode enumClass $enumClass object, using default value" }
+			null
+		}
+	}
 
-    else -> {
-        null
-    }
+	else -> {
+		null
+	}
 } ?: def

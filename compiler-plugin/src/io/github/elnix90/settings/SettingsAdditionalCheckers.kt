@@ -6,11 +6,11 @@ import org.jetbrains.kotlin.fir.analysis.checkers.declaration.DeclarationChecker
 import org.jetbrains.kotlin.fir.analysis.extensions.FirAdditionalCheckersExtension
 
 internal class SettingsAdditionalCheckers(
-    session: FirSession
+	session: FirSession
 ) : FirAdditionalCheckersExtension(session) {
-    override val declarationCheckers =
-        object : DeclarationCheckers() {
-            override val propertyCheckers =
-                setOf(SettingKeyChecker())
-        }
+	override val declarationCheckers =
+		object : DeclarationCheckers() {
+			override val propertyCheckers =
+				setOf(SettingKeyChecker())
+		}
 }

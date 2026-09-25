@@ -70,104 +70,104 @@ import org.jetbrains.kotlin.name.Name
  */
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class SettingsStoreTransformer(
-    private val ctx: IrPluginContext
+	private val ctx: IrPluginContext
 ) : IrElementTransformerVoid() {
-    /**
-     * Generate the `ALL` if it is a implementation of `MapSettingsStore`
-     * and the `name` in all cases
-     */
-    override fun visitClass(declaration: IrClass): IrStatement {
-        val hasSettingsStoreAnnotation = ctx.hasSettingsStoreAnnotation(declaration)
-        val isMapSettingsStore = declaration.isMapSettingsStore()
+	/**
+	 * Generate the `ALL` if it is a implementation of `MapSettingsStore`
+	 * and the `name` in all cases
+	 */
+	override fun visitClass(declaration: IrClass): IrStatement {
+		val hasSettingsStoreAnnotation = ctx.hasSettingsStoreAnnotation(declaration)
+		val isMapSettingsStore = declaration.isMapSettingsStore()
 
-        if (hasSettingsStoreAnnotation && isMapSettingsStore) {
-            generateAllPropertyBody(declaration)
-        }
+		if (hasSettingsStoreAnnotation && isMapSettingsStore) {
+			generateAllPropertyBody(declaration)
+		}
 
-        return super.visitClass(declaration)
-    }
+		return super.visitClass(declaration)
+	}
 
-    /**
-     * Takes the ALL previously generated in FIR and fill it with all the values marked as `@SettingKey` in the object declaration
-     */
-    @OptIn(FirIncompatiblePluginAPI::class, ObsoleteDescriptorBasedAPI::class)
-    private fun generateAllPropertyBody(storeClass: IrClass) {
-        val allProperty = storeClass.properties.firstOrNull {
-            it.name.asString() == "ALL"
-        } ?: return
+	/**
+	 * Takes the ALL previously generated in FIR and fill it with all the values marked as `@SettingKey` in the object declaration
+	 */
+	@OptIn(FirIncompatiblePluginAPI::class, ObsoleteDescriptorBasedAPI::class)
+	private fun generateAllPropertyBody(storeClass: IrClass) {
+		val allProperty = storeClass.properties.firstOrNull {
+			it.name.asString() == "ALL"
+		} ?: return
 
-        val settingKeyProperties = storeClass.properties
-            .filter { prop -> ctx.hasSettingKeyAnnotation(prop) }
-            .toList()
+		val settingKeyProperties = storeClass.properties
+			.filter { prop -> ctx.hasSettingKeyAnnotation(prop) }
+			.toList()
 
-        if (settingKeyProperties.isEmpty()) return
+		if (settingKeyProperties.isEmpty()) return
 
-        val setOfSymbol = ctx
-            .referenceFunctions(
-                CallableId(FqName("kotlin.collections"), Name.identifier("setOf"))
-            ).firstOrNull {
-                val param = it.owner.parameters
-                param.size == 1 && param[0].isVararg
-            }
-            ?: error("Cannot find setOf(vararg)")
+		val setOfSymbol = ctx
+			.referenceFunctions(
+				CallableId(FqName("kotlin.collections"), Name.identifier("setOf"))
+			).firstOrNull {
+				val param = it.owner.parameters
+				param.size == 1 && param[0].isVararg
+			}
+			?: error("Cannot find setOf(vararg)")
 
-        val thisReceiver = IrGetValueImpl(
-            startOffset = storeClass.startOffset,
-            endOffset = storeClass.endOffset,
-            type = storeClass.thisReceiver!!.type,
-            symbol = storeClass.thisReceiver!!.symbol
-        )
+		val thisReceiver = IrGetValueImpl(
+			startOffset = storeClass.startOffset,
+			endOffset = storeClass.endOffset,
+			type = storeClass.thisReceiver!!.type,
+			symbol = storeClass.thisReceiver!!.symbol
+		)
 
-        val args = settingKeyProperties.map { prop ->
-            val field = prop.backingField ?: error("No backing field for ${prop.name}")
+		val args = settingKeyProperties.map { prop ->
+			val field = prop.backingField ?: error("No backing field for ${prop.name}")
 
-            IrGetFieldImpl(
-                startOffset = storeClass.startOffset,
-                endOffset = storeClass.endOffset,
-                symbol = field.symbol,
-                type = field.type,
-                receiver = thisReceiver,
-                origin = null,
-                superQualifierSymbol = null
-            )
-        }
+			IrGetFieldImpl(
+				startOffset = storeClass.startOffset,
+				endOffset = storeClass.endOffset,
+				symbol = field.symbol,
+				type = field.type,
+				receiver = thisReceiver,
+				origin = null,
+				superQualifierSymbol = null
+			)
+		}
 
-        val call = IrCallImpl(
-            startOffset = storeClass.startOffset,
-            endOffset = storeClass.endOffset,
-            type = setOfSymbol.owner.returnType,
-            origin = null,
-            symbol = setOfSymbol,
-            superQualifierSymbol = null
-        )
+		val call = IrCallImpl(
+			startOffset = storeClass.startOffset,
+			endOffset = storeClass.endOffset,
+			type = setOfSymbol.owner.returnType,
+			origin = null,
+			symbol = setOfSymbol,
+			superQualifierSymbol = null
+		)
 
-        val settingsObjectClass =
-            ctx.referenceClass(settingObjectClassId)
-                ?: error("SettingObject not found")
+		val settingsObjectClass =
+			ctx.referenceClass(settingObjectClassId)
+				?: error("SettingObject not found")
 
-        val settingObjectType = IrSimpleTypeImpl(
-            classifier = settingsObjectClass,
-            hasQuestionMark = false,
-            arguments = listOf(
-                IrStarProjectionImpl,
-                IrStarProjectionImpl
-            ),
-            annotations = emptyList()
-        )
+		val settingObjectType = IrSimpleTypeImpl(
+			classifier = settingsObjectClass,
+			hasQuestionMark = false,
+			arguments = listOf(
+				IrStarProjectionImpl,
+				IrStarProjectionImpl
+			),
+			annotations = emptyList()
+		)
 
-        val varargParameter = setOfSymbol.owner.parameters.single()
+		val varargParameter = setOfSymbol.owner.parameters.single()
 
-        val vararg = IrVarargImpl(
-            startOffset = storeClass.startOffset,
-            endOffset = storeClass.endOffset,
-            type = varargParameter.type,
-            varargElementType = settingObjectType,
-            elements = args.toList()
-        )
+		val vararg = IrVarargImpl(
+			startOffset = storeClass.startOffset,
+			endOffset = storeClass.endOffset,
+			type = varargParameter.type,
+			varargElementType = settingObjectType,
+			elements = args.toList()
+		)
 
-        call.typeArguments[0] = settingObjectType
-        call.arguments[0] = vararg
+		call.typeArguments[0] = settingObjectType
+		call.arguments[0] = vararg
 
-        allProperty.backingField?.initializer = ctx.irFactory.createExpressionBody(call)
-    }
+		allProperty.backingField?.initializer = ctx.irFactory.createExpressionBody(call)
+	}
 }

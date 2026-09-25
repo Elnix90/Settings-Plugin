@@ -10,20 +10,20 @@ import io.github.elnix90.core.util.isNotBlankKey
 @Stable
 @ConsistentCopyVisibility
 public data class StringSetSettingObject internal constructor(
-    override val key: String,
-    override val default: Set<String>,
-    override val title: Int?,
-    override val description: Int?,
-    override val icon: Int?,
-    override var onChanged: (() -> Unit)?,
-    override val backupable: Boolean,
-    override val settingsStore: SettingsStore<*, *>
+	override val key: String,
+	override val default: Set<String>,
+	override val title: Int?,
+	override val description: Int?,
+	override val icon: Int?,
+	override var onChanged: (() -> Unit)?,
+	override val backupable: Boolean,
+	override val settingsStore: SettingsStore<*, *>
 ) : SettingObject<Set<String>, Set<String>>() {
-    override val preferenceKey: Preferences.Key<Set<String>> = stringSetPreferencesKey(preferenceKeyName)
+	override val preferenceKey: Preferences.Key<Set<String>> = stringSetPreferencesKey(preferenceKeyName)
 
-    override fun encode(value: Set<String>): Set<String> = value
+	override fun encode(value: Set<String>): Set<String> = value
 
-    override fun decode(raw: Any?): Set<String> = getStringSetStrict(raw, default)
+	override fun decode(raw: Any?): Set<String> = getStringSetStrict(raw, default)
 }
 
 /**
@@ -43,64 +43,64 @@ public data class StringSetSettingObject internal constructor(
  * @return A [StringSetSettingObject] configured with the provided parameters.
  */
 public fun MapSettingsStore.stringSet(
-    default: Set<String>,
-    title: Int? = null,
-    description: Int? = null,
-    icon: Int? = null,
-    key: String = "",
-    onChanged: (() -> Unit)? = null,
-    backupable: Boolean = true
+	default: Set<String>,
+	title: Int? = null,
+	description: Int? = null,
+	icon: Int? = null,
+	key: String = "",
+	onChanged: (() -> Unit)? = null,
+	backupable: Boolean = true
 ): StringSetSettingObject = StringSetSettingObject(
-    key = key.isNotBlankKey,
-    title = title,
-    description = description,
-    icon = icon,
-    default = default,
-    onChanged = onChanged,
-    backupable = backupable,
-    settingsStore = this
+	key = key.isNotBlankKey,
+	title = title,
+	description = description,
+	icon = icon,
+	default = default,
+	onChanged = onChanged,
+	backupable = backupable,
+	settingsStore = this
 )
 
 private fun getStringSetStrict(
-    raw: Any?,
-    def: Set<String>
+	raw: Any?,
+	def: Set<String>
 ): Set<String> {
-    return when (raw) {
-        is Set<*> -> {
-            raw.flattenStrings().toSet()
-        }
+	return when (raw) {
+		is Set<*> -> {
+			raw.flattenStrings().toSet()
+		}
 
-        is List<*> -> {
-            raw.flattenStrings().toSet()
-        }
+		is List<*> -> {
+			raw.flattenStrings().toSet()
+		}
 
-        is String -> {
-            // Parse "[a,b,c]" → ["a","b","c"]
-            try {
-                // Extract content between [ ] and split by comma
-                val clean = raw.trim().removeSurrounding("[", "]")
-                if (clean.isBlank()) return emptySet()
+		is String -> {
+			// Parse "[a,b,c]" → ["a","b","c"]
+			try {
+				// Extract content between [ ] and split by comma
+				val clean = raw.trim().removeSurrounding("[", "]")
+				if (clean.isBlank()) return emptySet()
 
-                clean
-                    .split(",")
-                    .map { it.trim().trim('"').trim('\'') }
-                    .filter { it.isNotBlank() }
-                    .toSet()
-            } catch (_: Exception) {
-                setOf(raw)
-            }
-        }
+				clean
+					.split(",")
+					.map { it.trim().trim('"').trim('\'') }
+					.filter { it.isNotBlank() }
+					.toSet()
+			} catch (_: Exception) {
+				setOf(raw)
+			}
+		}
 
-        else -> {
-            null
-        }
-    } ?: def
+		else -> {
+			null
+		}
+	} ?: def
 }
 
 private fun Collection<*>.flattenStrings(): List<String> = flatMap { item ->
-    when (item) {
-        is String -> listOf(item)
-        is Collection<*> -> item.flattenStrings()
-        else -> emptyList()
-    }
+	when (item) {
+		is String -> listOf(item)
+		is Collection<*> -> item.flattenStrings()
+		else -> emptyList()
+	}
 }.filter { it.isNotBlank() }

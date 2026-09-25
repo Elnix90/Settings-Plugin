@@ -53,56 +53,56 @@ import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
  */
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class SettingKeyTransformer(
-    private val ctx: IrPluginContext
+	private val ctx: IrPluginContext
 ) : IrElementTransformerVoid() {
-    override fun visitProperty(
-        declaration: IrProperty
-    ): IrStatement {
-        resolveSettingKeyAnnotation(declaration)
-        return super.visitProperty(declaration)
-    }
+	override fun visitProperty(
+		declaration: IrProperty
+	): IrStatement {
+		resolveSettingKeyAnnotation(declaration)
+		return super.visitProperty(declaration)
+	}
 
-    private fun resolveSettingKeyAnnotation(declaration: IrProperty) {
-        if (ctx.hasSettingKeyAnnotation(declaration)) {
-            val expression: IrExpression =
-                declaration.backingField
-                    ?.initializer
-                    ?.expression
-                    ?: return
+	private fun resolveSettingKeyAnnotation(declaration: IrProperty) {
+		if (ctx.hasSettingKeyAnnotation(declaration)) {
+			val expression: IrExpression =
+				declaration.backingField
+					?.initializer
+					?.expression
+					?: return
 
-            val call: IrCall =
-                expression
-                    .findCall()
-                    ?: return
+			val call: IrCall =
+				expression
+					.findCall()
+					?: return
 
-            val parameters: List<IrValueParameter> =
-                call.symbol.owner.parameters
+			val parameters: List<IrValueParameter> =
+				call.symbol.owner.parameters
 
-            val keyParameter: IrValueParameter? =
-                parameters.firstOrNull {
-                    it.name.asString() == "key"
-                }
+			val keyParameter: IrValueParameter? =
+				parameters.firstOrNull {
+					it.name.asString() == "key"
+				}
 
-            val keyIndex = keyParameter?.indexInParameters ?: error("No key parameter found for property ${declaration.name}")
-            val currentArgument = call.arguments[keyIndex]
+			val keyIndex = keyParameter?.indexInParameters ?: error("No key parameter found for property ${declaration.name}")
+			val currentArgument = call.arguments[keyIndex]
 
-            val shouldGenerateKey = currentArgument == null
+			val shouldGenerateKey = currentArgument == null
 
-            val keyValue = declaration.name.asString()
+			val keyValue = declaration.name.asString()
 
-            if (shouldGenerateKey) {
-                val keyValue =
-                    IrConstImpl.string(
-                        startOffset = call.startOffset,
-                        endOffset = call.endOffset,
-                        type = ctx.irBuiltIns.stringType,
-                        value = keyValue
-                    )
+			if (shouldGenerateKey) {
+				val keyValue =
+					IrConstImpl.string(
+						startOffset = call.startOffset,
+						endOffset = call.endOffset,
+						type = ctx.irBuiltIns.stringType,
+						value = keyValue
+					)
 
-                call.arguments[keyParameter.indexInParameters] = keyValue
-            }
-        }
-    }
+				call.arguments[keyParameter.indexInParameters] = keyValue
+			}
+		}
+	}
 }
 
 /**
@@ -110,23 +110,23 @@ internal class SettingKeyTransformer(
  *  structures until the actual initializer call is reached.
  */
 private fun IrExpression.findCall(): IrCall? =
-    when (this) {
-        is IrCall -> {
-            this
-        }
+	when (this) {
+		is IrCall -> {
+			this
+		}
 
-        is IrBlock -> {
-            statements
-                .lastOrNull()
-                ?.let { it as? IrExpression }
-                ?.findCall()
-        }
+		is IrBlock -> {
+			statements
+				.lastOrNull()
+				?.let { it as? IrExpression }
+				?.findCall()
+		}
 
-        is IrTypeOperatorCall -> {
-            argument.findCall()
-        }
+		is IrTypeOperatorCall -> {
+			argument.findCall()
+		}
 
-        else -> {
-            null
-        }
-    }
+		else -> {
+			null
+		}
+	}

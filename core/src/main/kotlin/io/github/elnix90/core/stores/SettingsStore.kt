@@ -30,75 +30,75 @@ import org.json.JSONObject
  *
  */
 public sealed class SettingsStore<TYPE, BACKUP>(
-    public open val backupable: Boolean
+	public open val backupable: Boolean
 ) {
-    public val name: String = this::class.simpleName!!.settingsStoreCase()
+	public val name: String = this::class.simpleName!!.settingsStoreCase()
 
-    /**
-     * # DO NOT OVERRIDE
-     * List of all individual settings in this store.
-     *
-     * Each item must be a concrete instance of [SettingObject].
-     * This list is used for operations like [resetAll].
-     */
-    @Suppress("PropertyName")
-    public open val ALL: Set<SettingObject<*, *>> = emptySet()
+	/**
+	 * # DO NOT OVERRIDE
+	 * List of all individual settings in this store.
+	 *
+	 * Each item must be a concrete instance of [SettingObject].
+	 * This list is used for operations like [resetAll].
+	 */
+	@Suppress("PropertyName")
+	public open val ALL: Set<SettingObject<*, *>> = emptySet()
 
-    /**
-     * Lambda use to detect if a setting was changed, and redirect them to the backup manager, in order to trigger a backup.
-     * The value is constructed by applying all [SettingObject.onChanged] lambdas to this one.
-     * This way, on any settings changed, this lambda is triggered and I don't need to list ALL the settings in the app
-     */
-    public var onAnySettingChanged: (() -> Unit)? = null
-        set(value) {
-            field = value
-            ALL.forEach {
-                // Skips settings who have their onChange already defined, in order to prevent the backup to trigger when they do
-                if (it.onChanged == null) {
-                    it.onChanged = value
-                }
-            }
-        }
+	/**
+	 * Lambda use to detect if a setting was changed, and redirect them to the backup manager, in order to trigger a backup.
+	 * The value is constructed by applying all [SettingObject.onChanged] lambdas to this one.
+	 * This way, on any settings changed, this lambda is triggered and I don't need to list ALL the settings in the app
+	 */
+	public var onAnySettingChanged: (() -> Unit)? = null
+		set(value) {
+			field = value
+			ALL.forEach {
+				// Skips settings who have their onChange already defined, in order to prevent the backup to trigger when they do
+				if (it.onChanged == null) {
+					it.onChanged = value
+				}
+			}
+		}
 
-    /**
-     * Resets all settings in this store to their default values.
-     *
-     * @param ctx The Android [Context] required to access the underlying DataStore.
-     */
-    public suspend fun resetAll(ctx: Context) {
-        ALL.forEach { it.reset(ctx) }
-    }
+	/**
+	 * Resets all settings in this store to their default values.
+	 *
+	 * @param ctx The Android [Context] required to access the underlying DataStore.
+	 */
+	public suspend fun resetAll(ctx: Context) {
+		ALL.forEach { it.reset(ctx) }
+	}
 
-    /**
-     * Reads the current state of all settings in this store and returns it in the form of the store's backup type [TYPE]
-     *
-     * @param ctx The Android [Context] required to access the underlying DataStore.
-     * @param forceAllKeys whether to get the settings that haven't been changed in the backup, the defaults
-     * @return The aggregate state of type [TYPE].
-     */
-    public abstract suspend fun getAll(ctx: Context, forceAllKeys: Boolean): TYPE
+	/**
+	 * Reads the current state of all settings in this store and returns it in the form of the store's backup type [TYPE]
+	 *
+	 * @param ctx The Android [Context] required to access the underlying DataStore.
+	 * @param forceAllKeys whether to get the settings that haven't been changed in the backup, the defaults
+	 * @return The aggregate state of type [TYPE].
+	 */
+	public abstract suspend fun getAll(ctx: Context, forceAllKeys: Boolean): TYPE
 
-    /**
-     * Writes the given aggregate state to all settings in this store.
-     *
-     * @param ctx The Android [Context] required to access the underlying DataStore.
-     * @param value The new state to write to all settings.
-     */
-    public abstract suspend fun setAll(ctx: Context, value: TYPE)
+	/**
+	 * Writes the given aggregate state to all settings in this store.
+	 *
+	 * @param ctx The Android [Context] required to access the underlying DataStore.
+	 * @param value The new state to write to all settings.
+	 */
+	public abstract suspend fun setAll(ctx: Context, value: TYPE)
 
-    /**
-     * Exports the current state of all settings as a [BACKUP] type object for backup purposes.
-     *
-     * @param ctx The Android [Context] required to access the underlying DataStore.
-     * @return A [BACKUP] representing all settings in the store's type, or `null` if nothing to export.
-     */
-    public abstract suspend fun exportForBackup(ctx: Context, forceAllKeys: Boolean): BACKUP?
+	/**
+	 * Exports the current state of all settings as a [BACKUP] type object for backup purposes.
+	 *
+	 * @param ctx The Android [Context] required to access the underlying DataStore.
+	 * @return A [BACKUP] representing all settings in the store's type, or `null` if nothing to export.
+	 */
+	public abstract suspend fun exportForBackup(ctx: Context, forceAllKeys: Boolean): BACKUP?
 
-    /**
-     * Imports settings from a [BACKUP] type backup.
-     *
-     * @param ctx The Android [Context] required to access the underlying DataStore.
-     * @param json The [BACKUP] containing backup values.
-     */
-    public abstract suspend fun importFromBackup(ctx: Context, json: BACKUP?)
+	/**
+	 * Imports settings from a [BACKUP] type backup.
+	 *
+	 * @param ctx The Android [Context] required to access the underlying DataStore.
+	 * @param json The [BACKUP] containing backup values.
+	 */
+	public abstract suspend fun importFromBackup(ctx: Context, json: BACKUP?)
 }

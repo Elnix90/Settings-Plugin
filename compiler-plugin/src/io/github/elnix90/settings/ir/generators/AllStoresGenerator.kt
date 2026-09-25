@@ -75,120 +75,120 @@ import org.jetbrains.kotlin.name.Name
  */
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class AllStoresGenerator(
-    private val ctx: IrPluginContext
+	private val ctx: IrPluginContext
 ) {
-    /**
-     * Fills the AllStores value with the set of all the stores marked by `@SettingsStore`
-     * The structure is similar to the `@SettingKey` resolution in [io.github.elnix90.settings.ir.transformers.SettingKeyTransformer]
-     */
-    @OptIn(FirIncompatiblePluginAPI::class, ObsoleteDescriptorBasedAPI::class)
-    fun generateAllStorePropertyBody(
-        module: IrModuleFragment
-    ) {
-        val stores: Set<IrClass> = collectStores(module)
+	/**
+	 * Fills the AllStores value with the set of all the stores marked by `@SettingsStore`
+	 * The structure is similar to the `@SettingKey` resolution in [io.github.elnix90.settings.ir.transformers.SettingKeyTransformer]
+	 */
+	@OptIn(FirIncompatiblePluginAPI::class, ObsoleteDescriptorBasedAPI::class)
+	fun generateAllStorePropertyBody(
+		module: IrModuleFragment
+	) {
+		val stores: Set<IrClass> = collectStores(module)
 
-        val allStoresFields = module
-            .files
-            .flatMap { it.declarations }
-            .filterIsInstance<IrProperty>()
-            .filter {
-                it.hasAnnotation(allStoresAnnotationClassId)
-            }
+		val allStoresFields = module
+			.files
+			.flatMap { it.declarations }
+			.filterIsInstance<IrProperty>()
+			.filter {
+				it.hasAnnotation(allStoresAnnotationClassId)
+			}
 
-        if (allStoresFields.isEmpty()) return
-        if (allStoresFields.size > 1) {
-            throw IllegalStateException("There must be at most 1 @AllStores value")
-        }
+		if (allStoresFields.isEmpty()) return
+		if (allStoresFields.size > 1) {
+			throw IllegalStateException("There must be at most 1 @AllStores value")
+		}
 
-        val allStoresField: IrField = allStoresFields.first().backingField ?: return
+		val allStoresField: IrField = allStoresFields.first().backingField ?: return
 
-        val args: Set<IrExpression> = stores.mapTo(mutableSetOf()) { store ->
-            IrGetObjectValueImpl(
-                startOffset = store.startOffset,
-                endOffset = store.endOffset,
-                type = store.defaultType,
-                symbol = store.symbol
-            )
-        }
+		val args: Set<IrExpression> = stores.mapTo(mutableSetOf()) { store ->
+			IrGetObjectValueImpl(
+				startOffset = store.startOffset,
+				endOffset = store.endOffset,
+				type = store.defaultType,
+				symbol = store.symbol
+			)
+		}
 
-        val setOfSymbol: IrSimpleFunctionSymbol = ctx
-            .referenceFunctions(
-                CallableId(
-                    FqName("kotlin.collections"),
-                    Name.identifier("setOf")
-                )
-            ).first {
-                it.owner.parameters
-                    .singleOrNull()
-                    ?.isVararg == true
-            }
+		val setOfSymbol: IrSimpleFunctionSymbol = ctx
+			.referenceFunctions(
+				CallableId(
+					FqName("kotlin.collections"),
+					Name.identifier("setOf")
+				)
+			).first {
+				it.owner.parameters
+					.singleOrNull()
+					?.isVararg == true
+			}
 
-        val call = IrCallImpl(
-            startOffset = UNDEFINED_OFFSET,
-            endOffset = UNDEFINED_OFFSET,
-            type = allStoresField.type,
-            origin = null,
-            symbol = setOfSymbol,
-            superQualifierSymbol = null
-        )
+		val call = IrCallImpl(
+			startOffset = UNDEFINED_OFFSET,
+			endOffset = UNDEFINED_OFFSET,
+			type = allStoresField.type,
+			origin = null,
+			symbol = setOfSymbol,
+			superQualifierSymbol = null
+		)
 
-        val settingsStoreClass =
-            ctx.referenceClass(settingsStoreClassId)
-                ?: error("SettingsStore not found")
+		val settingsStoreClass =
+			ctx.referenceClass(settingsStoreClassId)
+				?: error("SettingsStore not found")
 
-        val storeType = IrSimpleTypeImpl(
-            classifier = settingsStoreClass,
-            hasQuestionMark = false,
-            arguments = listOf(
-                IrStarProjectionImpl,
-                IrStarProjectionImpl
-            ),
-            annotations = emptyList()
-        )
+		val storeType = IrSimpleTypeImpl(
+			classifier = settingsStoreClass,
+			hasQuestionMark = false,
+			arguments = listOf(
+				IrStarProjectionImpl,
+				IrStarProjectionImpl
+			),
+			annotations = emptyList()
+		)
 
-        val varargParameter = setOfSymbol.owner.parameters.single()
+		val varargParameter = setOfSymbol.owner.parameters.single()
 
-        val vararg = IrVarargImpl(
-            startOffset = UNDEFINED_OFFSET,
-            endOffset = UNDEFINED_OFFSET,
-            type = varargParameter.type,
-            varargElementType = storeType,
-            elements = args.toList()
-        )
+		val vararg = IrVarargImpl(
+			startOffset = UNDEFINED_OFFSET,
+			endOffset = UNDEFINED_OFFSET,
+			type = varargParameter.type,
+			varargElementType = storeType,
+			elements = args.toList()
+		)
 
-        // THIS IS NEEDED!! otherwise the resolved type doesn't work and everything's messed up
-        call.typeArguments[0] = storeType
-        call.arguments[0] = vararg
+		// THIS IS NEEDED!! otherwise the resolved type doesn't work and everything's messed up
+		call.typeArguments[0] = storeType
+		call.arguments[0] = vararg
 
-        allStoresField.initializer = ctx.irFactory.createExpressionBody(call)
-    }
+		allStoresField.initializer = ctx.irFactory.createExpressionBody(call)
+	}
 
-    /**
-     * Kinda like the other transformers, but as an anonymous object, that simply lists all the stores and return a list of them
-     */
-    @OptIn(UnsafeDuringIrConstructionAPI::class)
-    private fun collectStores(
-        module: IrModuleFragment
-    ): Set<IrClass> {
-        val stores = mutableSetOf<IrClass>()
+	/**
+	 * Kinda like the other transformers, but as an anonymous object, that simply lists all the stores and return a list of them
+	 */
+	@OptIn(UnsafeDuringIrConstructionAPI::class)
+	private fun collectStores(
+		module: IrModuleFragment
+	): Set<IrClass> {
+		val stores = mutableSetOf<IrClass>()
 
-        module.accept(
-            object : IrVisitorVoid() {
-                override fun visitElement(element: IrElement) {
-                    element.acceptChildren(this, null)
-                }
+		module.accept(
+			object : IrVisitorVoid() {
+				override fun visitElement(element: IrElement) {
+					element.acceptChildren(this, null)
+				}
 
-                override fun visitClass(declaration: IrClass) {
-                    if (declaration.hasAnnotation(settingsStoreAnnotationClassId)) {
-                        stores += declaration
-                    }
+				override fun visitClass(declaration: IrClass) {
+					if (declaration.hasAnnotation(settingsStoreAnnotationClassId)) {
+						stores += declaration
+					}
 
-                    super.visitClass(declaration)
-                }
-            },
-            null
-        )
+					super.visitClass(declaration)
+				}
+			},
+			null
+		)
 
-        return stores
-    }
+		return stores
+	}
 }

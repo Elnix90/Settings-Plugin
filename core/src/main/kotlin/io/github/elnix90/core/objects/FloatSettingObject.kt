@@ -10,21 +10,21 @@ import io.github.elnix90.core.util.isNotBlankKey
 @Stable
 @ConsistentCopyVisibility
 public data class FloatSettingObject internal constructor(
-    override val key: String,
-    override val default: Float,
-    override val title: Int?,
-    override val description: Int?,
-    override val icon: Int?,
-    override var onChanged: (() -> Unit)?,
-    override val backupable: Boolean,
-    override val settingsStore: SettingsStore<*, *>,
-    val allowedRange: ClosedFloatingPointRange<Float>
+	override val key: String,
+	override val default: Float,
+	override val title: Int?,
+	override val description: Int?,
+	override val icon: Int?,
+	override var onChanged: (() -> Unit)?,
+	override val backupable: Boolean,
+	override val settingsStore: SettingsStore<*, *>,
+	val allowedRange: ClosedFloatingPointRange<Float>
 ) : SettingObject<Float, Float>() {
-    override val preferenceKey: Preferences.Key<Float> = floatPreferencesKey(preferenceKeyName)
+	override val preferenceKey: Preferences.Key<Float> = floatPreferencesKey(preferenceKeyName)
 
-    override fun encode(value: Float): Float = value
+	override fun encode(value: Float): Float = value
 
-    override fun decode(raw: Any?): Float = getFloatStrict(raw, default).coerceIn(allowedRange)
+	override fun decode(raw: Any?): Float = getFloatStrict(raw, default).coerceIn(allowedRange)
 }
 
 /**
@@ -45,32 +45,32 @@ public data class FloatSettingObject internal constructor(
  * @return A [FloatSettingObject] configured with the provided parameters.
  */
 public fun MapSettingsStore.float(
-    default: Float,
-    allowedRange: ClosedFloatingPointRange<Float>,
-    title: Int? = null,
-    description: Int? = null,
-    icon: Int? = null,
-    key: String = "",
-    onChanged: (() -> Unit)? = null,
-    backupable: Boolean = true
+	default: Float,
+	allowedRange: ClosedFloatingPointRange<Float>,
+	title: Int? = null,
+	description: Int? = null,
+	icon: Int? = null,
+	key: String = "",
+	onChanged: (() -> Unit)? = null,
+	backupable: Boolean = true
 ): FloatSettingObject = FloatSettingObject(
-    key = key.isNotBlankKey,
-    title = title,
-    description = description,
-    icon = icon,
-    default = default,
-    allowedRange = allowedRange,
-    onChanged = onChanged,
-    backupable = backupable,
-    settingsStore = this
+	key = key.isNotBlankKey,
+	title = title,
+	description = description,
+	icon = icon,
+	default = default,
+	allowedRange = allowedRange,
+	onChanged = onChanged,
+	backupable = backupable,
+	settingsStore = this
 )
 
 private fun getFloatStrict(
-    raw: Any?,
-    def: Float
+	raw: Any?,
+	def: Float
 ): Float = when (raw) {
-    is Float -> raw
-    is Number -> raw.toFloat()
-    is String -> raw.toFloatOrNull()
-    else -> null
+	is Float -> raw
+	is Number -> raw.toFloat()
+	is String -> raw.toFloatOrNull()
+	else -> null
 } ?: def

@@ -23,8 +23,8 @@ import kotlinx.coroutines.launch
  */
 @Composable
 public fun <T, R> SettingObject<T, R>.asState(default: T? = null): State<T> {
-    val ctx = LocalContext.current
-    return flow(ctx).collectAsStateWithLifecycle(initialValue = default ?: this.default)
+	val ctx = LocalContext.current
+	return flow(ctx).collectAsStateWithLifecycle(initialValue = default ?: this.default)
 }
 
 /**
@@ -38,26 +38,26 @@ public fun <T, R> SettingObject<T, R>.asState(default: T? = null): State<T> {
  */
 @Composable
 public fun <T, R> SettingObject<T, R>.asMutableState(default: T? = null): MutableState<T> {
-    val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
+	val ctx = LocalContext.current
+	val scope = rememberCoroutineScope()
 
-    val state by flow(ctx).collectAsStateWithLifecycle(initialValue = default ?: this.default)
+	val state by flow(ctx).collectAsStateWithLifecycle(initialValue = default ?: this.default)
 
-    return remember(state) {
-        object : MutableState<T> {
-            override var value: T
-                get() = state
-                set(value) {
-                    scope.launch {
-                        this@asMutableState.set(ctx, value)
-                    }
-                }
+	return remember(state) {
+		object : MutableState<T> {
+			override var value: T
+				get() = state
+				set(value) {
+					scope.launch {
+						this@asMutableState.set(ctx, value)
+					}
+				}
 
-            override fun component1() = value
+			override fun component1() = value
 
-            override fun component2(): (T) -> Unit = { value = it }
-        }
-    }
+			override fun component2(): (T) -> Unit = { value = it }
+		}
+	}
 }
 
 /**
@@ -70,8 +70,8 @@ public fun <T, R> SettingObject<T, R>.asMutableState(default: T? = null): Mutabl
  */
 @Composable
 public fun <T, R> SettingObject<T, R>.asStateNull(): State<T?> {
-    val ctx = LocalContext.current
-    return flow(ctx).collectAsStateWithLifecycle(initialValue = null)
+	val ctx = LocalContext.current
+	return flow(ctx).collectAsStateWithLifecycle(initialValue = null)
 }
 
 /**
@@ -85,24 +85,24 @@ public fun <T, R> SettingObject<T, R>.asStateNull(): State<T?> {
  */
 @Composable
 public fun <T, R> SettingObject<T, R>.asMutableStateNull(): MutableState<T?> {
-    val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
+	val ctx = LocalContext.current
+	val scope = rememberCoroutineScope()
 
-    val state by flow(ctx).collectAsStateWithLifecycle(initialValue = null)
+	val state by flow(ctx).collectAsStateWithLifecycle(initialValue = null)
 
-    return remember(state) {
-        object : MutableState<T?> {
-            override var value: T?
-                get() = state
-                set(value) {
-                    scope.launch {
-                        this@asMutableStateNull.set(ctx, value)
-                    }
-                }
+	return remember(state) {
+		object : MutableState<T?> {
+			override var value: T?
+				get() = state
+				set(value) {
+					scope.launch {
+						this@asMutableStateNull.set(ctx, value)
+					}
+				}
 
-            override fun component1() = value
+			override fun component1() = value
 
-            override fun component2(): (T?) -> Unit = { value = it }
-        }
-    }
+			override fun component2(): (T?) -> Unit = { value = it }
+		}
+	}
 }

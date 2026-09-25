@@ -10,21 +10,21 @@ import io.github.elnix90.core.util.isNotBlankKey
 @Stable
 @ConsistentCopyVisibility
 public data class DoubleSettingObject internal constructor(
-    override val key: String,
-    override val default: Double,
-    override val title: Int?,
-    override val description: Int?,
-    override val icon: Int?,
-    override var onChanged: (() -> Unit)?,
-    override val backupable: Boolean,
-    override val settingsStore: SettingsStore<*, *>,
-    val allowedRange: ClosedRange<Double>
+	override val key: String,
+	override val default: Double,
+	override val title: Int?,
+	override val description: Int?,
+	override val icon: Int?,
+	override var onChanged: (() -> Unit)?,
+	override val backupable: Boolean,
+	override val settingsStore: SettingsStore<*, *>,
+	val allowedRange: ClosedRange<Double>
 ) : SettingObject<Double, Double>() {
-    override val preferenceKey: Preferences.Key<Double> = doublePreferencesKey(preferenceKeyName)
+	override val preferenceKey: Preferences.Key<Double> = doublePreferencesKey(preferenceKeyName)
 
-    override fun encode(value: Double): Double = value
+	override fun encode(value: Double): Double = value
 
-    override fun decode(raw: Any?): Double = getDoubleStrict(raw, default).coerceIn(allowedRange)
+	override fun decode(raw: Any?): Double = getDoubleStrict(raw, default).coerceIn(allowedRange)
 }
 
 /**
@@ -45,32 +45,32 @@ public data class DoubleSettingObject internal constructor(
  * @return A [DoubleSettingObject] configured with the provided parameters.
  */
 public fun MapSettingsStore.double(
-    default: Double,
-    allowedRange: ClosedRange<Double>,
-    title: Int? = null,
-    description: Int? = null,
-    icon: Int? = null,
-    key: String = "",
-    onChanged: (() -> Unit)? = null,
-    backupable: Boolean = true
+	default: Double,
+	allowedRange: ClosedRange<Double>,
+	title: Int? = null,
+	description: Int? = null,
+	icon: Int? = null,
+	key: String = "",
+	onChanged: (() -> Unit)? = null,
+	backupable: Boolean = true
 ): DoubleSettingObject = DoubleSettingObject(
-    key = key.isNotBlankKey,
-    title = title,
-    description = description,
-    icon = icon,
-    default = default,
-    allowedRange = allowedRange,
-    onChanged = onChanged,
-    backupable = backupable,
-    settingsStore = this
+	key = key.isNotBlankKey,
+	title = title,
+	description = description,
+	icon = icon,
+	default = default,
+	allowedRange = allowedRange,
+	onChanged = onChanged,
+	backupable = backupable,
+	settingsStore = this
 )
 
 private fun getDoubleStrict(
-    raw: Any?,
-    def: Double
+	raw: Any?,
+	def: Double
 ): Double = when (raw) {
-    is Double -> raw
-    is Number -> raw.toDouble()
-    is String -> raw.toDoubleOrNull()
-    else -> null
+	is Double -> raw
+	is Number -> raw.toDouble()
+	is String -> raw.toDoubleOrNull()
+	else -> null
 } ?: def

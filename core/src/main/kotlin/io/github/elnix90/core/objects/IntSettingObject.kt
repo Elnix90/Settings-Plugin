@@ -10,21 +10,21 @@ import io.github.elnix90.core.util.isNotBlankKey
 @Stable
 @ConsistentCopyVisibility
 public data class IntSettingObject internal constructor(
-    override val key: String,
-    override val default: Int,
-    override val title: Int?,
-    override val description: Int?,
-    override val icon: Int?,
-    override var onChanged: (() -> Unit)?,
-    override val backupable: Boolean,
-    override val settingsStore: SettingsStore<*, *>,
-    val allowedRange: IntRange
+	override val key: String,
+	override val default: Int,
+	override val title: Int?,
+	override val description: Int?,
+	override val icon: Int?,
+	override var onChanged: (() -> Unit)?,
+	override val backupable: Boolean,
+	override val settingsStore: SettingsStore<*, *>,
+	val allowedRange: IntRange
 ) : SettingObject<Int, Int>() {
-    override val preferenceKey: Preferences.Key<Int> = intPreferencesKey(preferenceKeyName)
+	override val preferenceKey: Preferences.Key<Int> = intPreferencesKey(preferenceKeyName)
 
-    override fun encode(value: Int): Int = value
+	override fun encode(value: Int): Int = value
 
-    override fun decode(raw: Any?): Int = getIntStrict(raw, default).coerceIn(allowedRange)
+	override fun decode(raw: Any?): Int = getIntStrict(raw, default).coerceIn(allowedRange)
 }
 
 /**
@@ -45,32 +45,32 @@ public data class IntSettingObject internal constructor(
  * @return An [IntSettingObject] configured with the provided parameters.
  */
 public fun MapSettingsStore.int(
-    default: Int,
-    allowedRange: IntRange,
-    title: Int? = null,
-    description: Int? = null,
-    icon: Int? = null,
-    key: String = "",
-    onChanged: (() -> Unit)? = null,
-    backupable: Boolean = true
+	default: Int,
+	allowedRange: IntRange,
+	title: Int? = null,
+	description: Int? = null,
+	icon: Int? = null,
+	key: String = "",
+	onChanged: (() -> Unit)? = null,
+	backupable: Boolean = true
 ): IntSettingObject = IntSettingObject(
-    key = key.isNotBlankKey,
-    title = title,
-    description = description,
-    icon = icon,
-    default = default,
-    allowedRange = allowedRange,
-    onChanged = onChanged,
-    backupable = backupable,
-    settingsStore = this
+	key = key.isNotBlankKey,
+	title = title,
+	description = description,
+	icon = icon,
+	default = default,
+	allowedRange = allowedRange,
+	onChanged = onChanged,
+	backupable = backupable,
+	settingsStore = this
 )
 
 internal fun getIntStrict(
-    raw: Any?,
-    def: Int
+	raw: Any?,
+	def: Int
 ): Int = when (raw) {
-    is Int -> raw
-    is Number -> raw.toInt()
-    is String -> raw.toIntOrNull()
-    else -> null
+	is Int -> raw
+	is Number -> raw.toInt()
+	is String -> raw.toIntOrNull()
+	else -> null
 } ?: def

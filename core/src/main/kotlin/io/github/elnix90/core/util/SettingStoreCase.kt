@@ -8,9 +8,9 @@ private val settingsStoreRegex = """SettingsStore\.*""".toRegex()
 
 // TODO()
 internal fun String.settingsStoreCase(): String {
-    val withoutSettingsStoreText = settingsStoreRegex.replace(this) { "" }
-    return camelRegex
-        .replace(withoutSettingsStoreText) {
-            "_${it.value}"
-        }.lowercase(Locale.ROOT)
+	val withoutSettingsStoreText = settingsStoreRegex.replace(this) { "" }
+	return camelRegex
+		.replace(withoutSettingsStoreText) {
+			"_${it.value}"
+		}.lowercase(Locale.ROOT)
 }

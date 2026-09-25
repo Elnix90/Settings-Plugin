@@ -12,38 +12,38 @@ import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.name.ClassId
 
 internal fun FirClassSymbol<*>.isSettingsStore(
-    session: FirSession
+	session: FirSession
 ): Boolean {
-    val mapSettingsStoreSymbol =
-        session.symbolProvider
-            .getClassLikeSymbolByClassId(settingsStoreClassId)
-            as? FirClassSymbol<*>
-            ?: return false
+	val mapSettingsStoreSymbol =
+		session.symbolProvider
+			.getClassLikeSymbolByClassId(settingsStoreClassId)
+			as? FirClassSymbol<*>
+			?: return false
 
-    return mapSettingsStoreSymbol.isSupertypeOf(this, session)
+	return mapSettingsStoreSymbol.isSupertypeOf(this, session)
 }
 
 internal fun FirClassSymbol<*>.isMapSettingsStore(
-    session: FirSession
+	session: FirSession
 ): Boolean {
-    val mapSettingsStoreSymbol =
-        session.symbolProvider
-            .getClassLikeSymbolByClassId(mapSettingsStoreClassId)
-            as? FirClassSymbol<*>
-            ?: return false
+	val mapSettingsStoreSymbol =
+		session.symbolProvider
+			.getClassLikeSymbolByClassId(mapSettingsStoreClassId)
+			as? FirClassSymbol<*>
+			?: return false
 
-    return mapSettingsStoreSymbol.isSupertypeOf(this, session)
+	return mapSettingsStoreSymbol.isSupertypeOf(this, session)
 }
 
 internal fun IrClass.isClassIdSupertype(classId: ClassId): Boolean {
-    if (this.classId == classId) {
-        return true
-    }
+	if (this.classId == classId) {
+		return true
+	}
 
-    return superTypes.any { superType ->
-        val superClass = superType.classOrNull?.owner ?: return@any false
-        superClass.isClassIdSupertype(classId)
-    }
+	return superTypes.any { superType ->
+		val superClass = superType.classOrNull?.owner ?: return@any false
+		superClass.isClassIdSupertype(classId)
+	}
 }
 
 internal fun IrClass.isMapSettingsStore(): Boolean = isClassIdSupertype(mapSettingsStoreClassId)

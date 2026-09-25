@@ -9,21 +9,21 @@ import io.github.elnix90.core.util.isNotBlankKey
 
 @Stable
 public data class EnumSettingObject<E : Enum<E>>(
-    override val key: String,
-    override val default: E,
-    override val title: Int?,
-    override val description: Int?,
-    override val icon: Int?,
-    override var onChanged: (() -> Unit)?,
-    override val backupable: Boolean,
-    override val settingsStore: SettingsStore<*, *>,
-    val enumClass: Class<E>
+	override val key: String,
+	override val default: E,
+	override val title: Int?,
+	override val description: Int?,
+	override val icon: Int?,
+	override var onChanged: (() -> Unit)?,
+	override val backupable: Boolean,
+	override val settingsStore: SettingsStore<*, *>,
+	val enumClass: Class<E>
 ) : SettingObject<E, String>() {
-    override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
+	override val preferenceKey: Preferences.Key<String> = stringPreferencesKey(preferenceKeyName)
 
-    override fun encode(value: E): String = value.name
+	override fun encode(value: E): String = value.name
 
-    override fun decode(raw: Any?): E = getEnumStrict(raw, default, enumClass)
+	override fun decode(raw: Any?): E = getEnumStrict(raw, default, enumClass)
 }
 
 /**
@@ -43,29 +43,29 @@ public data class EnumSettingObject<E : Enum<E>>(
  * @return An [EnumSettingObject] configured with the provided parameters.
  */
 public inline fun <reified E : Enum<E>> MapSettingsStore.enum(
-    default: E,
-    title: Int? = null,
-    description: Int? = null,
-    icon: Int? = null,
-    key: String = "",
-    noinline onChanged: (() -> Unit)? = null,
-    backupable: Boolean = true
+	default: E,
+	title: Int? = null,
+	description: Int? = null,
+	icon: Int? = null,
+	key: String = "",
+	noinline onChanged: (() -> Unit)? = null,
+	backupable: Boolean = true
 ): EnumSettingObject<E> = EnumSettingObject(
-    key = key.isNotBlankKey,
-    title = title,
-    description = description,
-    icon = icon,
-    default = default,
-    enumClass = E::class.java,
-    onChanged = onChanged,
-    backupable = backupable,
-    settingsStore = this
+	key = key.isNotBlankKey,
+	title = title,
+	description = description,
+	icon = icon,
+	default = default,
+	enumClass = E::class.java,
+	onChanged = onChanged,
+	backupable = backupable,
+	settingsStore = this
 )
 
 private fun <E : Enum<E>> getEnumStrict(
-    raw: Any?,
-    def: E,
-    enumClass: Class<E>
+	raw: Any?,
+	def: E,
+	enumClass: Class<E>
 ): E = enumClass.enumConstants
-    ?.firstOrNull { it.name == raw }
-    ?: def
+	?.firstOrNull { it.name == raw }
+	?: def
