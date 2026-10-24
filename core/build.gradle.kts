@@ -1,37 +1,11 @@
-import com.android.build.api.dsl.LibraryExtension
-
 plugins {
-	alias(libs.plugins.android.library)
+	alias(libs.plugins.settings.library)
+	alias(libs.plugins.settings.compose)
 	alias(libs.plugins.kotlin.serialization)
-	alias(libs.plugins.vanniktech.maven.publish)
 }
 
-kotlin {
-	jvmToolchain(21)
-	explicitApi()
-}
-
-extensions.configure<LibraryExtension> {
+android {
 	namespace = "io.github.elnix90.core"
-
-	compileSdk {
-		version = release(
-			libs.versions.compileSdk
-				.get()
-				.toInt()
-		)
-	}
-
-	defaultConfig {
-		minSdk = libs.versions.minSdk
-			.get()
-			.toInt()
-	}
-
-	compileOptions {
-		sourceCompatibility = JavaVersion.VERSION_21
-		targetCompatibility = JavaVersion.VERSION_21
-	}
 }
 
 dependencies {

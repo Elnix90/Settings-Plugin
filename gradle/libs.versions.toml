@@ -1,11 +1,4 @@
 [versions]
-#noinspection UnusedVersionCatalogEntry
-minSdk = "26"
-#noinspection UnusedVersionCatalogEntry
-compileSdk = "37"
-#noinspection UnusedVersionCatalogEntry
-targetSdk = "37"
-
 agp = "9.3.1"
 androidx-core = "1.19.0"
 datastore = "1.2.1"
@@ -16,8 +9,15 @@ timber = "5.0.1"
 kotlinx-serialization = "1.11.0"
 kotlinxCoroutinesCore = "1.11.0"
 composeBom = "2026.06.01"
-
-
+material3 = "1.5.0-beta02"
+ui = "1.12.1"
+graphicsShapes = "1.1.0"
+runtimeRetain = "1.12.1"
+material3WindowSizeClass = "1.4.0"
+uiTooling = "1.12.1"
+lifecycleRuntimeKtx = "2.11.0"
+activityCompose = "1.13.0"
+shared-ui = "1.0.0"
 
 # https://github.com/JetBrains/kotlin
 kotlin = "2.4.10"
@@ -48,9 +48,35 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
+androidx-compose-animation = { module = "androidx.compose.animation:animation", version.ref = "ui" }
+androidx-compose-animation-core = { module = "androidx.compose.animation:animation-core", version.ref = "ui" }
+androidx-compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "ui" }
+androidx-compose-foundation-layout = { module = "androidx.compose.foundation:foundation-layout", version.ref = "ui" }
+androidx-compose-material3-window-size-class1 = { module = "androidx.compose.material3:material3-window-size-class", version.ref = "material3WindowSizeClass" }
+androidx-compose-runtime-retain = { module = "androidx.compose.runtime:runtime-retain", version.ref = "runtimeRetain" }
+androidx-compose-ui-geometry = { module = "androidx.compose.ui:ui-geometry", version.ref = "ui" }
+androidx-compose-ui-text = { module = "androidx.compose.ui:ui-text", version.ref = "ui" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiTooling" }
+androidx-compose-ui-unit = { module = "androidx.compose.ui:ui-unit", version.ref = "ui" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeKtx" }
+androidx-graphics-shapes = { module = "androidx.graphics:graphics-shapes", version.ref = "graphicsShapes" }
+
+androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+androidx-activity = { module = "androidx.activity:activity", version.ref = "activityCompose" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+
+
+shared-ui = { group = "io.github.elnix90.shared", name = "shared-ui", version.ref = "shared-ui" }
+
+# Dependencies of the build-logic (convention plugins) itself. Referenced from build-logic/build.gradle.kts.
+android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
+android-gradle-api = { module = "com.android.tools.build:gradle-api", version.ref = "agp" }
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 
 
 [plugins]
+settings-library = { id = "settings.library" }
+settings-compose = { id = "settings.compose" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

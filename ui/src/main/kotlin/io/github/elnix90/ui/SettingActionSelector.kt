@@ -1,0 +1,48 @@
+package io.github.elnix90.ui
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import io.github.elnix90.core.objects.EnumSettingObject
+import io.github.elnix90.runtime.asState
+import io.github.elnix90.shared.ui.dragon.components.DragonGroupScope
+import io.github.elnix90.shared.ui.dragon.generic.ActionSelectorRow
+import kotlinx.coroutines.launch
+
+@Composable
+public inline fun <reified T : Enum<T>> DragonGroupScope.Setting(
+	setting: EnumSettingObject<T>,
+	enabled: Boolean = true,
+	noinline desc: @Composable (T) -> String
+) {
+	val ctx = LocalContext.current
+	val scope = rememberCoroutineScope()
+
+	val state: T by setting.asState()
+
+	// If this works, well, I'm a genius.
+	// I am one after all
+	val actions: List<T> = T::class.java.enumConstants!!.toList()
+
+	ActionSelectorRow(
+		options = actions,
+		selected = state,
+		label = stringResource(setting.title!!),
+		icon = setting.icon!!,
+		optionDesc = desc,
+		optionLabel = { it.name },
+		enabled = enabled,
+		resetEnabled = state != setting.default,
+		onReset = {
+			scope.launch {
+				setting.reset(ctx)
+			}
+		}
+	) {
+		scope.launch {
+			setting.set(ctx, it)
+		}
+	}
+}

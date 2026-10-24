@@ -18,6 +18,8 @@ plugins {
 	id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
+includeBuild("build-logic")
+
 dependencyResolutionManagement {
 	repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 	repositories {
@@ -35,3 +37,4 @@ include("gradle-plugin")
 include("annotations")
 include("core")
 include("runtime")
+include("ui")
