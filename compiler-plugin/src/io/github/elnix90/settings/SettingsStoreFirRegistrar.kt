@@ -6,6 +6,6 @@ import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrar
 internal class SettingsStoreFirRegistrar : FirExtensionRegistrar() {
 	override fun ExtensionRegistrarContext.configurePlugin() {
 		+::SettingsStoreFirExtension
-//        +::SettingsAdditionalCheckers // Unused for now
+		+::SettingsAdditionalCheckers
 	}
 }

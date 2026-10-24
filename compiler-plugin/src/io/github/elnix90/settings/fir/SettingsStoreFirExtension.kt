@@ -7,14 +7,12 @@ import io.github.elnix90.settings.util.isSettingsStore
 import org.jetbrains.kotlin.GeneratedDeclarationKey
 import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.fir.FirSession
-import org.jetbrains.kotlin.fir.declarations.DirectDeclarationsAccess
 import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
 import org.jetbrains.kotlin.fir.extensions.MemberGenerationContext
 import org.jetbrains.kotlin.fir.plugin.createMemberProperty
 import org.jetbrains.kotlin.fir.resolve.providers.symbolProvider
-import org.jetbrains.kotlin.fir.symbols.SymbolInternals
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassLikeSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
@@ -79,7 +77,6 @@ internal class SettingsStoreFirExtension(
 	/**
 	 * Returns true for each class it visits, because I found it easier to check whether the object/class has an annotation during the second phase
 	 */
-	@OptIn(DirectDeclarationsAccess::class, SymbolInternals::class)
 	override fun getCallableNamesForClass(
 		classSymbol: FirClassSymbol<*>,
 		context: MemberGenerationContext
@@ -91,7 +88,6 @@ internal class SettingsStoreFirExtension(
 	 *  - adds the overridden value `ALL` to the settings store
 	 *  - adds the overridden value `name` to the setting store
 	 */
-	@OptIn(SymbolInternals::class, DirectDeclarationsAccess::class)
 	override fun generateProperties(
 		callableId: CallableId,
 		context: MemberGenerationContext?
@@ -116,7 +112,6 @@ internal class SettingsStoreFirExtension(
 				.getClassLikeSymbolByClassId(settingObjectClassId)
 				?: error("SettingObject not found")
 
-		@OptIn(SymbolInternals::class)
 		val settingObjectType: ConeKotlinType =
 			settingObjectSymbol.toLookupTag().constructClassType(
 				arrayOf(

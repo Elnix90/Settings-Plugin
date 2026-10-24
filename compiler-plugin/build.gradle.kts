@@ -19,6 +19,9 @@ sourceSets {
 		java.setSrcDirs(listOf("src"))
 		resources.setSrcDirs(listOf("resources"))
 	}
+	test {
+		java.setSrcDirs(listOf("test"))
+	}
 }
 
 val annotationsRuntimeClasspath by configurations.dependencyScope("annotationsRuntimeClasspath") {
@@ -39,6 +42,14 @@ dependencies {
 	compileOnly(libs.kotlin.compiler)
 	implementation(project(":annotations"))
 	annotationsRuntimeClasspath(project(":annotations"))
+
+	// Tests run against the *embeddable* compiler on purpose: that is what the Gradle and
+	// IDE daemons use in production. It relocates com.intellij.* to org.jetbrains.kotlin.com.intellij.*,
+	// so any un-shaded IntelliJ reference in the plugin crashes at runtime here — exactly
+	// how a PsiElement class literal in SettingsErrors once silenced every IDE diagnostic.
+	testImplementation(libs.kotlin.compiler.embeddable)
+	testImplementation(project(":annotations"))
+	testImplementation(kotlin("test"))
 }
 
 buildConfig {
@@ -57,4 +68,15 @@ kotlin {
 		freeCompilerArgs.add("-Xcontext-parameters")
 	}
 	explicitApi()
+}
+
+// The jar under test: each test compilation loads it through -Xplugin, exactly like a real build.
+val compilerPluginJar = tasks.jar.flatMap { it.archiveFile }
+
+tasks.test {
+	dependsOn(tasks.jar)
+	inputs.file(compilerPluginJar).withPropertyName("settingsCompilerPluginJar")
+	systemProperty("settingsCompilerPluginJar", compilerPluginJar.get().asFile.absolutePath)
+	// The tests run the Kotlin compiler in-process.
+	maxHeapSize = "1g"
 }
