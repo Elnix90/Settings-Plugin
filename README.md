@@ -264,8 +264,8 @@ items(results, key = { it.key }) { result ->
 
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/Elnix90/Settings-Plugin/main/assets/1.jpg" alt="Demo 1" width="50%">
-    <img src="https://raw.githubusercontent.com/Elnix90/Settings-Plugin/main/assets/2.jpg" alt="Demo 2" width="50%">
+    <img src="https://raw.githubusercontent.com/Elnix90/Settings-Plugin/main/assets/1.jpg" alt="Demo 1" width="40%">
+    <img src="https://raw.githubusercontent.com/Elnix90/Settings-Plugin/main/assets/2.jpg" alt="Demo 2" width="40%">
 </p>
 
 ## Download
