@@ -5,12 +5,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import io.github.elnix90.annotations.SettingCall
 import io.github.elnix90.core.objects.EnumSettingObject
 import io.github.elnix90.runtime.asState
 import io.github.elnix90.shared.ui.dragon.components.DragonGroupScope
 import io.github.elnix90.shared.ui.dragon.generic.ActionSelectorRow
 import kotlinx.coroutines.launch
 
+@SettingCall
 @Composable
 public inline fun <reified T : Enum<T>> DragonGroupScope.Setting(
 	setting: EnumSettingObject<T>,

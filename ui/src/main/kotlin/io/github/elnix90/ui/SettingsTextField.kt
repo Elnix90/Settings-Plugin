@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import io.github.elnix90.annotations.SettingCall
 import io.github.elnix90.core.objects.StringSettingObject
 import io.github.elnix90.runtime.asState
 import io.github.elnix90.shared.theme.AppObjectsColors
@@ -30,6 +31,7 @@ import io.github.elnix90.shared.ui.base.animation.rememberAnimatedIcon
 import io.github.elnix90.shared.ui.dragon.components.DragonGroupScope
 import kotlinx.coroutines.launch
 
+@SettingCall
 @Composable
 public fun DragonGroupScope.Setting(
 	setting: StringSettingObject,

@@ -43,6 +43,13 @@ internal class CompilationResult internal constructor(
 		.filter { it.severity == CompilerMessageSeverity.ERROR || it.severity == CompilerMessageSeverity.EXCEPTION }
 		.map { it.text }
 
+	/**
+	 * Rendered texts of every warning the compilation reported.
+	 */
+	val warningMessages: List<String> = messages
+		.filter { it.severity == CompilerMessageSeverity.WARNING }
+		.map { it.text }
+
 	val succeeded: Boolean
 		get() = errorMessages.isEmpty()
 
@@ -58,6 +65,17 @@ internal class CompilationResult internal constructor(
 		assertTrue(
 			errorMessages.any { it.contains(expectedText) },
 			"Expected an error containing:\n$expectedText\nActual errors:\n${errorMessages.joinToString("\n")}"
+		)
+	}
+
+	fun assertWarningCount(expected: Int) {
+		assertEquals(expected, warningMessages.size, "Unexpected compilation warnings:\n${warningMessages.joinToString("\n")}")
+	}
+
+	fun assertWarningContaining(expectedText: String) {
+		assertTrue(
+			warningMessages.any { it.contains(expectedText) },
+			"Expected a warning containing:\n$expectedText\nActual warnings:\n${warningMessages.joinToString("\n")}"
 		)
 	}
 
@@ -192,6 +210,42 @@ internal object CompilationTestHarness {
 			}
 
 			class KeyedSettingObject(override val key: String) : SettingObject<Boolean, Boolean>()
+			""".trimIndent(),
+		"stubs/SettingUsageStub.kt" to
+			"""
+			package io.github.elnix90.runtime.search
+
+			import io.github.elnix90.core.objects.SettingObject
+
+			sealed class SettingUsage {
+				abstract val screenFqName: String
+
+				abstract val screenRoute: Any?
+
+				class Object(
+					val settingProvider: () -> SettingObject<*, *>,
+					override val screenFqName: String,
+					val storeFqName: String,
+					override val screenRoute: Any?
+				) : SettingUsage() {
+					constructor(
+						setting: SettingObject<*, *>,
+						screenFqName: String,
+						storeFqName: String,
+						screenRoute: Any?
+					) : this({ setting }, screenFqName, storeFqName, screenRoute)
+
+					val setting: SettingObject<*, *> get() = settingProvider()
+				}
+
+				class Entry(
+					val title: Int,
+					val description: Int,
+					val icon: Int,
+					override val screenFqName: String,
+					override val screenRoute: Any?
+				) : SettingUsage()
+			}
 			""".trimIndent()
 	)
 }

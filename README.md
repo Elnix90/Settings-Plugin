@@ -24,7 +24,7 @@ object MySettingsStore : MapSettingsStore() {
 
     @SettingKey
     val settingC = enum(SomeEnum.A)
-    
+
     @SettingKey
     val settingD = int(
         default = 3,
@@ -64,7 +64,7 @@ scope.launch {
 ```
 
 
-The plugin provides 3 main features:
+The plugin provides 4 main features:
 
 ### 1. Automatic setting keys
 
@@ -113,12 +113,164 @@ val allStores: Set<SettingsStore<*,*>> = emptySet()
 
 And the compiler fills it at with all you stores annotated with `@SettingsStore`
 
+---
+
+### 4. Settings search (compile-time index + click-to-navigate)
+
+The plugin scans your whole module at compile time and builds a typed index of every place a setting is rendered, so you can power a settings search screen with **no hand-maintained registry**. You also get click-to-navigate for free:each indexed entry remembers the screen it lives on (and, when that screen declares a navigation route, the route object itself).
+
+The runtime types live in the `runtime` module (`io.github.elnix90.runtime.search`).
+
+#### 4.1 Declare the index holder
+
+Create **one** property in your app module and annotate it with `@AllSettingUsages`:
+
+```kotlin
+@AllSettingUsages
+val allSettingsUsage: List<SettingUsage> = emptyList()
+```
+
+The compiler replaces the `emptyList()` with a generated `listOf(...)` of every `@SettingCall` / `@SettingEntry` usage discovered in the module.
+
+#### 4.2 What gets indexed automatically: `@SettingCall`
+
+Every call site of a function annotated with `@SettingCall` is recorded. The `:ui` library already annotates its wrappers (`Setting(...)`, `SettingsSwitchRow`, ...), so as an app developer **you annotate nothing** for `SettingObject`-backed settings:
+
+```kotlin
+DragonSettingsGroup(R.string.behaviour) {
+    Setting(BehaviorSettingsStore.patternSize)
+    Setting(BehaviorSettingsStore.patternSensitivity)
+}
+```
+
+Both a plain property reference (`Setting(MyStore.enabled)`) and a dynamic expression (`Setting(if (x) a else b)`) are indexed; dynamic expressions that capture local state are skipped (they can't be re-evaluated from the module-level index) - this never fails the build.
+
+#### 4.3 Make a screen navigable: `@SettingScreen`
+
+Annotate a screen composable with `@SettingScreen`, passing your navigation route object (it must be an `object`/`data object` implementing your `NavKey`):
+
+```kotlin
+@Composable
+@SettingScreen(NavigationRoute.AngleLineEdit::class)
+fun AngleLineTab() {
+    DragonSettingsGroup {
+        Setting(AngleLineSettingsStore.showLineObjectPreview)
+    }
+}
+```
+
+Now every setting rendered inside `AngleLineTab` - including ones nested in `AnimatedContent`, conditionals, or helper composables - records both the screen's fully qualified name and the `NavigationRoute.AngleLineEdit` object.
+
+#### 4.4 Index an action with no `SettingObject`: `@SettingEntry`
+
+For things that aren't settings but should still be searchable (a "Set wallpaper" button), annotate a composable **function declaration** with `@SettingEntry`. The annotation is argumentless: metadata comes from the function's parameters - a **required non-nullable `title: Int`** plus optional `description` and `icon` (`Int` or `Int?`; `0`, `null` or an absent parameter means none). Call sites pass ordinary arguments, which is what makes the pattern work in library modules too: annotation arguments must be compile-time constants, but library-module `R` fields are not. A function without a usable `title: Int` parameter is a compile error.
+
+As with `@SettingCall`, the `:ui` library ships a wrapper so you annotate
+nothing - `SettingAction` is a ready-made `@SettingEntry` row with an
+`onClick` and an optional trailing slot:
+
+```kotlin
+@Composable
+@SettingScreen(NavigationRoute.Wallpaper::class)
+fun WallpaperTab() {
+    DragonSettingsGroup(R.string.custom_wallpaper) {
+        SettingAction(
+            title = R.string.set_wallpaper,
+            description = R.string.set_wallpaper_description,
+            icon = R.drawable.wallpaper,
+            onClick = { /* open the wallpaper picker */ }
+        )
+    }
+}
+```
+
+Indexing something bespoke follows the same contract - declare the metadata as parameters; call sites pass them, or omit them and the wrapper's `= R...` defaults are indexed:
+
+```kotlin
+DragonSettingsGroup(R.string.custom_wallpaper) {
+    @Composable
+    @SettingEntry
+    fun SetWallpaperButton(
+        @StringRes title: Int = R.string.set_wallpaper,
+        @DrawableRes icon: Int? = R.drawable.wallpaper
+    ) {
+        DragonButton(stringResource(title)) { /* ... */ }
+    }
+
+    SetWallpaperButton()
+}
+```
+
+The annotation must sit on the function **declaration** - annotating a call expression is invisible to the compiler; the local function above keeps the entry right where it is rendered.
+
+At index generation the plugin **bakes** these values statically: constants, `R` field reads and parameterless property getters are copied into the module-level list, so search costs one field read at startup and nothing per query beyond the locale lookup. Metadata that can't be evaluated that way - capturing a local, a branch, a call with arguments - and a `title = 0` are skipped silently; this never fails the build.
+
+#### 4.5 Keep settings out of search: `@SettingHidden`
+
+Exclude settings from the index entirely. It works on **either** a store property (hides that setting everywhere) or **any function** (hides every setting rendered inside it - ideal for a dialog whose settings shouldn't be searchable):
+
+```kotlin
+@SettingsStore
+object DebugSettingsStore : MapSettingsStore() {
+    // Hidden everywhere it is rendered.
+    @SettingKey
+    @SettingHidden
+    val verboseLogging = boolean()
+}
+
+// Every setting inside this dialog is excluded from search.
+@Composable
+@SettingHidden
+fun PatternPrompt(onResult: (Boolean) -> Unit) {
+    DragonSettingsGroup {
+        Setting(BehaviorSettingsStore.patternSize)        // not indexed
+        Setting(BehaviorSettingsStore.patternSensitivity) // not indexed
+    }
+}
+```
+
+#### 4.6 Build the index and search at runtime
+
+```kotlin
+val index = SettingsSearchIndex(allSettingsUsage)
+
+val results: List<SearchResult> = index.search(context, query)
+```
+
+`SearchResult` is a sealed type with two kinds that share the same searchable surface (`title`, `description`, `icon`) and the same navigation data (`screenFqName`, `screenRoute`), so a search UI renders them uniformly:
+
+- `SearchResult.Object` - a matched `SettingObject`-backed setting (`result.setting` is the `SettingObject`);
+- `SearchResult.Entry` - a `@SettingEntry` action (carries resolved `title`/`description`/`icon`).
+
+Both expose `key` - unique per entry and stable across recompositions, use it as your `LazyColumn` item key.
+
+#### 4.7 Navigate on click
+
+`screenRoute` is the route object instance recorded by `@SettingScreen` (or `null` when the screen declared none). Cast it to your sealed route and navigate:
+
+```kotlin
+items(results, key = { it.key }) { result ->
+    SearchResultRow(
+        result = result,
+        onClick = {
+            val screen = result.screenRoute as? NavigationRoute ?: return@SearchResultRow
+            navigator.navigate(screen)
+        }
+    )
+}
+```
+
+#### Screenshots
 
 
+<p align="center">
+    <img src="https://raw.githubusercontent.com/Elnix90/Settings-Plugin/main/assets/1.jpg" alt="Demo 1" width="50%">
+    <img src="https://raw.githubusercontent.com/Elnix90/Settings-Plugin/main/assets/2.jpg" alt="Demo 2" width="50%">
+</p>
 
 ## Download
 
-![Maven Central Version](https://img.shields.io/maven-central/v/io.github.elnix90.settings/compiler-plugin)
+![Maven Central Version](https://img.shields.io/maven-central/v/io.github.elnix90.settings/compiler-plugin?style=for-the-badge)
 
 ### Version Catalog
 Configure the dependency by adding it to your `libs.versions.toml` file as follows:
@@ -156,7 +308,7 @@ plugins {
 plugins {
     alias(libs.plugins.android.library)
     // ...
-    alias(libs.plugins.settings) 
+    alias(libs.plugins.settings)
 }
 
 dependencies {

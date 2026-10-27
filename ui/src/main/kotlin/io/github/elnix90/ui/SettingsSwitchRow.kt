@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import io.github.elnix90.annotations.SettingCall
 import io.github.elnix90.core.objects.BooleanSettingObject
 import io.github.elnix90.runtime.asState
 import io.github.elnix90.shared.ui.dragon.components.DragonGroupScope
@@ -14,6 +15,7 @@ import io.github.elnix90.shared.ui.dragon.components.SwitchRow
 import io.github.elnix90.shared.ui.dragon.dialogs.UserValidation
 import kotlinx.coroutines.launch
 
+@SettingCall
 @Composable
 public fun DragonGroupScope.Setting(
 	setting: BooleanSettingObject,

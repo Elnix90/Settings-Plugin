@@ -1,3 +1,5 @@
+@file:Suppress("UnusedVariable")
+
 package io.github.elnix90.settings
 
 import io.github.elnix90.settings.BuildConfig.ANNOTATIONS_LIBRARY_COORDINATES
@@ -35,9 +37,16 @@ class SettingsGradlePlugin : KotlinCompilerPluginSupportPlugin {
 		}
 
 		return project.provider {
+			// Unused but I fear deleting it as it might break everything
 			val extension = project.extensions.getByType(SettingsGradleExtension::class.java)
 
-			emptyList()
+			// Forward the debug flag to the compiler plugin so its logging can be
+			// enabled without editing the build: -PsettingsPluginDebug=true
+			if (project.findProperty("settingsPluginDebug") == "true") {
+				listOf(SubpluginOption(key = "debug", value = "true"))
+			} else {
+				emptyList()
+			}
 		}
 	}
 }

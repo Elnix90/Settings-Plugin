@@ -2,6 +2,7 @@ package io.github.elnix90.settings.ir
 
 import io.github.elnix90.settings.ir.generators.AllStoresGenerator
 import io.github.elnix90.settings.ir.transformers.SettingKeyTransformer
+import io.github.elnix90.settings.ir.transformers.SettingUsageCollector
 import io.github.elnix90.settings.ir.transformers.SettingsStoreTransformer
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -19,5 +20,7 @@ internal class SettingsIrGenerationExtension : IrGenerationExtension {
 		moduleFragment.transform(transformer, null)
 
 		AllStoresGenerator(pluginContext).generateAllStorePropertyBody(moduleFragment)
+
+		SettingUsageCollector(pluginContext).generateAllSettingUsagesPropertyBody(moduleFragment)
 	}
 }

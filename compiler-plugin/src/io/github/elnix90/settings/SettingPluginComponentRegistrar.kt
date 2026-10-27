@@ -13,6 +13,12 @@ internal class SettingPluginComponentRegistrar : CompilerPluginRegistrar() {
 		get() = true
 
 	override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
+		PluginDebug.configure(
+			enabled = configuration[SettingCommandLineProcessor.DEBUG_KEY] == "true",
+			configuration = configuration,
+			logFilePath = null
+		)
+
 		FirExtensionRegistrarAdapter.registerExtension(
 			SettingsStoreFirRegistrar()
 		)

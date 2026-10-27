@@ -16,4 +16,6 @@ dependencies {
 	implementation(libs.timber)
 
 	implementation(project(":core"))
+
+	testImplementation(kotlin("test-junit"))
 }

@@ -34,4 +34,5 @@ dependencies {
 
 	implementation(project(":core"))
 	implementation(project(":runtime"))
+	implementation(project(":annotations"))
 }
