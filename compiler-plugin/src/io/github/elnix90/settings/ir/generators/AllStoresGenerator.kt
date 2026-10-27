@@ -3,10 +3,8 @@ package io.github.elnix90.settings.ir.generators
 import io.github.elnix90.settings.util.ClassIds.allStoresAnnotationClassId
 import io.github.elnix90.settings.util.ClassIds.settingsStoreAnnotationClassId
 import io.github.elnix90.settings.util.ClassIds.settingsStoreClassId
-import org.jetbrains.kotlin.backend.common.extensions.FirIncompatiblePluginAPI
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.IrElement
-import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrField
@@ -81,7 +79,6 @@ internal class AllStoresGenerator(
 	 * Fills the AllStores value with the set of all the stores marked by `@SettingsStore`
 	 * The structure is similar to the `@SettingKey` resolution in [io.github.elnix90.settings.ir.transformers.SettingKeyTransformer]
 	 */
-	@OptIn(FirIncompatiblePluginAPI::class, ObsoleteDescriptorBasedAPI::class)
 	fun generateAllStorePropertyBody(
 		module: IrModuleFragment
 	) {
@@ -112,7 +109,8 @@ internal class AllStoresGenerator(
 		}
 
 		val setOfSymbol: IrSimpleFunctionSymbol = ctx
-			.referenceFunctions(
+			.finderForBuiltins()
+			.findFunctions(
 				CallableId(
 					FqName("kotlin.collections"),
 					Name.identifier("setOf")
@@ -133,7 +131,7 @@ internal class AllStoresGenerator(
 		)
 
 		val settingsStoreClass =
-			ctx.referenceClass(settingsStoreClassId)
+			ctx.finderForBuiltins().findClass(settingsStoreClassId)
 				?: error("SettingsStore not found")
 
 		val storeType = IrSimpleTypeImpl(
@@ -166,7 +164,6 @@ internal class AllStoresGenerator(
 	/**
 	 * Kinda like the other transformers, but as an anonymous object, that simply lists all the stores and return a list of them
 	 */
-	@OptIn(UnsafeDuringIrConstructionAPI::class)
 	private fun collectStores(
 		module: IrModuleFragment
 	): Set<IrClass> {
