@@ -165,22 +165,30 @@ Now every setting rendered inside `AngleLineTab` - including ones nested in `Ani
 
 For things that aren't settings but should still be searchable (a "Set wallpaper" button), annotate a composable **function declaration** with `@SettingEntry`. The annotation is argumentless: metadata comes from the function's parameters - a **required non-nullable `title: Int`** plus optional `description` and `icon` (`Int` or `Int?`; `0`, `null` or an absent parameter means none). Call sites pass ordinary arguments, which is what makes the pattern work in library modules too: annotation arguments must be compile-time constants, but library-module `R` fields are not. A function without a usable `title: Int` parameter is a compile error.
 
-As with `@SettingCall`, the `:ui` library ships a wrapper so you annotate
-nothing - `SettingAction` is a ready-made `@SettingEntry` row with an
-`onClick` and an optional trailing slot:
+You can declare any setting to be a searchable one by Wrapping its `@Composable` code with `SettingAction`
 
 ```kotlin
 @Composable
 @SettingScreen(NavigationRoute.Wallpaper::class)
 fun WallpaperTab() {
-    DragonSettingsGroup(R.string.custom_wallpaper) {
-        SettingAction(
-            title = R.string.set_wallpaper,
-            description = R.string.set_wallpaper_description,
-            icon = R.drawable.wallpaper,
-            onClick = { /* open the wallpaper picker */ }
-        )
-    }
+	SettingAction(
+		title = R.string.set_wallpaper,
+		description = R.string.set_wallpaper,
+		icon = R.drawable.wallpaper
+	) {
+		DragonButton(
+			onClick = { /* sets wallpaper */}
+		) {
+			Icon(
+				painter = painterResource(icon!!),
+				contentDescription = null
+			)
+			Text(
+				text = stringResource(title),
+				textAlign = TextAlign.Center
+			)
+		}
+	}
 }
 ```
 
