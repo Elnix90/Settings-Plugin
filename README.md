@@ -165,6 +165,8 @@ Now every setting rendered inside `AngleLineTab` - including ones nested in `Ani
 
 For things that aren't settings but should still be searchable (a "Set wallpaper" button), annotate a composable **function declaration** with `@SettingEntry`. The annotation is argumentless: metadata comes from the function's parameters - a **required non-nullable `title: Int`** plus optional `description` and `icon` (`Int` or `Int?`; `0`, `null` or an absent parameter means none). Call sites pass ordinary arguments, which is what makes the pattern work in library modules too: annotation arguments must be compile-time constants, but library-module `R` fields are not. A function without a usable `title: Int` parameter is a compile error.
 
+**Wrapper discovery**: you don't annotate every level. A plain function whose body renders a `@SettingEntry` function is discovered through its own call sites - `RouteItem(route = NavigationRoute.Colors)` is indexed even though only `SettingsItem` is annotated, because the plugin resolves the inner metadata (`title = route.resId`) against the wrapper's arguments (expanding lowered `tmp` variables along the way). When the inner metadata depends on wrapper parameters the inner call cannot be recorded on its own, so exactly one entry results; anything still not statically evaluable after substitution is skipped as above.
+
 You can declare any setting to be a searchable one by Wrapping its `@Composable` code with `SettingAction`
 
 ```kotlin
@@ -236,6 +238,8 @@ fun PatternPrompt(onResult: (Boolean) -> Unit) {
     }
 }
 ```
+
+Hiding takes **priority** over `@SettingEntry` and `@SettingCall`: the hidden check runs before entry/call discovery, so an annotated entry inside a hidden scope is never indexed. It matches on the callee itself, on any enclosing function, and on an enclosing `@SettingScreen` - recovered from source positions when the Compose transform hoists the screen body off the IR ancestor chain.
 
 #### 4.6 Build the index and search at runtime
 

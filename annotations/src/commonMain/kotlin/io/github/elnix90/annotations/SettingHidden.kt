@@ -43,6 +43,12 @@ package io.github.elnix90.annotations
  * A setting is hidden when *either* its store property *or* any enclosing
  * function is annotated, so combining the two is redundant but harmless.
  *
+ * Hiding takes **priority** over `@SettingEntry` and `@SettingCall`: the hidden
+ * check runs before entry/call discovery and covers the callee itself, any
+ * enclosing function, and an enclosing `@SettingScreen` - recovered from
+ * source positions when the Compose transform hoists the screen body off the
+ * IR ancestor chain.
+ *
  * Like the other settings annotations, this one alone does not inject any UI:
  * it only tells the compiler plugin to skip the matching usages when building
  * the search index.

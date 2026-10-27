@@ -10,6 +10,13 @@ package io.github.elnix90.annotations
  * read from its metadata parameters and the screen it is rendered on. At runtime those entries
  * surface as `SearchResult.Entry`.
  *
+ * Entries are also discovered **through wrappers**: a plain function whose body renders an
+ * annotated function is indexed at its own call sites, with the metadata resolved against the
+ * wrapper's arguments (`RouteItem(route = X)` picks up the inner `SettingsItem(title =
+ * route.resId)`). When the inner metadata reads the wrapper's parameters the inner call cannot be
+ * recorded on its own, so exactly one entry results; metadata still not statically evaluable
+ * after substitution is skipped as described below.
+ *
  * The annotation takes **no arguments**. Metadata comes from the function's parameters, because
  * annotation arguments must be compile-time constants while Android library-module `R` fields are
  * non-final (since SDK tools r14) and can never be one. Resource references in *ordinary code*

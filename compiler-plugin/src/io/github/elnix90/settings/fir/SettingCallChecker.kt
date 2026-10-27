@@ -32,7 +32,7 @@ import org.jetbrains.kotlin.fir.types.coneType
  *    target, which only makes sense for composable screens.
  *
  * Both rules mirror the behavior of
- * [io.github.elnix90.settings.ir.transformers.SettingUsageCollector], so the
+ * [io.github.elnix90.settings.ir.collector.SettingUsageCollector], so the
  * checker never rejects code the backend could handle.
  *
  * Reported diagnostics can be suppressed with
